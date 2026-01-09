@@ -27,12 +27,7 @@ interface Deal {
     days: number;
 }
 
-const initialDeals: Deal[] = [
-    { id: '1', title: 'Global Expansion', account: 'Stark Industries', value: 120000, stage: 'PROPOSAL', days: 2 },
-    { id: '2', title: 'API Integration', account: 'Wayne Ent.', value: 45000, stage: 'NEW', days: 5 },
-    { id: '3', title: 'Security Audit', account: 'Cyberdyne', value: 85000, stage: 'QUALIFICATION', days: 1 },
-    { id: '4', title: 'Cloud Migration', account: 'Hooli', value: 250000, stage: 'NEGOTIATION', days: 3 },
-];
+const initialDeals: Deal[] = [];
 
 export function KanbanView() {
     const [deals, setDeals] = useState(initialDeals);

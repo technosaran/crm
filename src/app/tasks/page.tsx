@@ -5,33 +5,19 @@ import { motion } from 'framer-motion';
 import {
     CheckCircle2,
     Clock,
-    AlertCircle,
     Plus,
     Search,
     Filter,
-    MoreVertical,
     Calendar,
-    User,
-    Flag
+    ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const initialTasks = [
-    { id: 1, title: 'Follow up on proposal V2', priority: 'High', due: 'Today', status: 'Pending', owner: 'Alex Rivera', entity: 'Stark Industries' },
-    { id: 2, title: 'Schedule discovery call', priority: 'Medium', due: 'Tomorrow', status: 'Pending', owner: 'Alex Rivera', entity: 'Pied Piper' },
-    { id: 3, title: 'Internal review of Q1 goals', priority: 'Low', due: 'Jan 15', status: 'Completed', owner: 'Michael Chen', entity: 'Internal' },
-    { id: 4, title: 'Prepare security documents', priority: 'High', due: 'Jan 12', status: 'Pending', owner: 'Alex Rivera', entity: 'Cyberdyne' },
-];
+const initialTasks: any[] = [];
 
 export default function TasksPage() {
     const [tasks, setTasks] = useState(initialTasks);
-
-    const toggleStatus = (id: number) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === 'Completed' ? 'Pending' : 'Completed' } : t));
-        const task = tasks.find(t => t.id === id);
-        if (task?.status === 'Pending') toast.success("Task marked as completed!");
-    };
 
     return (
         <div className="space-y-6 pb-12">
@@ -58,12 +44,11 @@ export default function TasksPage() {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 bg-white border border-sf-border rounded-[4px] shadow-sm overflow-hidden">
-                    <div className="p-4 border-b border-sf-border flex items-center justify-between bg-sf-gray/20">
+                <div className="flex-1 bg-white border border-sf-border rounded-[4px] shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+                    <div className="p-4 border-b border-sf-border flex items-center justify-between bg-sf-gray/20 font-bold text-slate-500">
                         <div className="flex items-center gap-4">
                             <button className="text-[13px] font-bold text-sf-blue border-b-2 border-sf-blue pb-1">All Open</button>
                             <button className="text-[13px] font-medium text-slate-500 hover:text-sf-blue">Completed</button>
-                            <button className="text-[13px] font-medium text-slate-500 hover:text-sf-blue">My Tasks</button>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="relative">
@@ -74,88 +59,36 @@ export default function TasksPage() {
                         </div>
                     </div>
 
-                    <div className="divide-y divide-sf-border">
-                        {tasks.map((task) => (
-                            <motion.div
-                                key={task.id}
-                                layout
-                                className={cn(
-                                    "p-4 flex items-center justify-between group transition-colors hover:bg-sf-gray/10",
-                                    task.status === 'Completed' && "opacity-60 bg-sf-gray/5"
-                                )}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <button
-                                        onClick={() => toggleStatus(task.id)}
-                                        className={cn(
-                                            "h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all",
-                                            task.status === 'Completed' ? "bg-emerald-500 border-emerald-500 text-white" : "border-sf-border hover:border-sf-blue"
-                                        )}
-                                    >
-                                        {task.status === 'Completed' && <CheckCircle2 size={12} />}
-                                    </button>
-                                    <div>
-                                        <h4 className={cn("text-[14px] font-bold", task.status === 'Completed' ? "line-through text-slate-400" : "text-slate-800 hover:text-sf-blue cursor-pointer")}>
-                                            {task.title}
-                                        </h4>
-                                        <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-1 font-medium">
-                                            <span className="flex items-center gap-1 font-bold text-slate-500">
-                                                <User size={10} /> {task.owner}
-                                            </span>
-                                            <span>•</span>
-                                            <span className="flex items-center gap-1">
-                                                <Clock size={10} /> Due: {task.due}
-                                            </span>
-                                            <span>•</span>
-                                            <span className="bg-sf-gray px-1.5 py-0.5 rounded text-[10px] uppercase font-bold text-slate-500 tracking-tighter">
-                                                {task.entity}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-6">
-                                    <div className={cn(
-                                        "flex items-center gap-1.5 text-[11px] font-bold",
-                                        task.priority === 'High' ? "text-red-500" : task.priority === 'Medium' ? "text-amber-500" : "text-blue-500"
-                                    )}>
-                                        <Flag size={12} />
-                                        {task.priority}
-                                    </div>
-                                    <button className="p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-slate-600">
-                                        <MoreVertical size={16} />
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4">
+                        <div className="h-16 w-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center shadow-inner">
+                            <CheckCircle2 size={32} />
+                        </div>
+                        <div className="max-w-xs space-y-1">
+                            <h3 className="text-[16px] font-bold text-slate-800">You're all caught up!</h3>
+                            <p className="text-[12px] text-slate-500">No pending tasks found for the current filter. Take a moment to plan your next strategic move.</p>
+                        </div>
+                        <button className="sf-btn-primary scale-90">Assign New Task</button>
                     </div>
-
-                    <button className="w-full py-4 text-[12px] font-bold text-slate-400 hover:bg-sf-gray/20 border-t border-sf-border transition-all">
-                        View All Task History
-                    </button>
                 </div>
 
                 <div className="w-full lg:w-80 shrink-0 space-y-6">
                     <div className="bg-white border border-sf-border rounded-[4px] p-5 shadow-sm">
                         <h3 className="text-[14px] font-bold text-slate-800 mb-4 pb-2 border-b border-sf-border">Productivity Insights</h3>
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between text-[13px]">
-                                <span className="text-slate-500 font-medium">Weekly Completion</span>
-                                <span className="font-bold text-emerald-600">84%</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-sf-gray rounded-full overflow-hidden">
-                                <div className="h-full w-[84%] bg-emerald-500 rounded-full" />
-                            </div>
-                            <div className="p-3 bg-amber-50 border border-amber-100 rounded-md mt-4">
-                                <div className="flex items-start gap-2 text-amber-700">
-                                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-[12px] font-bold">2 High Priority tasks overdue</p>
-                                        <p className="text-[11px] mt-0.5">Prioritize 'Stark Industries' follow-up to maintain deal velocity.</p>
-                                    </div>
-                                </div>
+                            <div className="text-center py-6">
+                                <Clock size={32} className="mx-auto text-slate-300 mb-2" />
+                                <p className="text-[11px] text-slate-500 font-medium italic">Insights will appear as you complete tasks.</p>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#001639] to-[#0176D3] rounded-[4px] p-5 text-white shadow-lg overflow-hidden relative">
+                        <div className="absolute top-0 right-0 h-32 w-32 bg-white/5 rounded-full blur-2xl -mr-12 -mt-12" />
+                        <h4 className="text-[14px] font-bold mb-2">Smart Reminders</h4>
+                        <p className="text-[11px] text-blue-100 leading-relaxed mb-4">Zenith Intelligence can auto-remind you of stale deals. Enable in settings.</p>
+                        <button className="text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                            Configure AI Rules <ArrowRight size={12} />
+                        </button>
                     </div>
                 </div>
             </div>

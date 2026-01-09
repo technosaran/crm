@@ -10,10 +10,8 @@ import {
     LayoutGrid,
     ChevronDown,
     MoreVertical,
-    Trash2,
     Tag,
     Download,
-    Eye,
     Mail,
     Phone
 } from 'lucide-react';
@@ -22,15 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Modal } from '@/components/shared/Modal';
 
-const initialLeads = [
-    { id: 1, name: 'John Peterson', company: 'Stark Industries', status: 'Working', owner: 'Alex Rivera', email: 'john@stark.com', phone: '555-0123', created: '1/08/2026', source: 'Web' },
-    { id: 2, name: 'Sarah Miller', company: 'Apex Systems', status: 'New', owner: 'Alex Rivera', email: 'smiller@apex.io', phone: '555-0987', created: '1/09/2026', source: 'Referral' },
-    { id: 3, name: 'David Chen', company: 'Wayne Ent.', status: 'Nurturing', owner: 'Michael Chen', email: 'd.chen@wayne.com', phone: '555-0456', created: '1/07/2026', source: 'LinkedIn' },
-    { id: 4, name: 'Elena Rodriguez', company: 'Skyline VC', status: 'Working', owner: 'Sarah Jenkins', email: 'elena@sky.vc', phone: '555-0234', created: '1/05/2026', source: 'Outreach' },
-    { id: 5, name: 'Marcus Wong', company: 'Hooli', status: 'New', owner: 'Alex Rivera', email: 'marcus@hooli.com', phone: '555-0345', created: '1/09/2026', source: 'Direct' },
-    { id: 6, name: 'Peter Gregory', company: 'Raviga', status: 'Nurturing', owner: 'Alex Rivera', email: 'pg@raviga.com', phone: '555-0777', created: '1/02/2026', source: 'LinkedIn' },
-    { id: 7, name: 'Monica Hall', company: 'Pied Piper', status: 'Qualified', owner: 'Michael Chen', email: 'monica@piedpiper.com', phone: '555-0888', created: '1/01/2026', source: 'Web' },
-];
+const initialLeads: any[] = [];
 
 export function LeadTable() {
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -45,6 +35,7 @@ export function LeadTable() {
     };
 
     const toggleAll = () => {
+        if (leads.length === 0) return;
         setSelectedIds(selectedIds.length === leads.length ? [] : leads.map(l => l.id));
     };
 
@@ -90,7 +81,7 @@ export function LeadTable() {
 
             <div className="flex gap-4">
                 {/* Main Table Area */}
-                <div className="flex-1 bg-white border border-sf-border rounded-[4px] flex flex-col shadow-sm relative overflow-hidden">
+                <div className="flex-1 bg-white border border-sf-border rounded-[4px] flex flex-col shadow-sm relative overflow-hidden min-h-[400px]">
                     {/* Action Header */}
                     <div className="p-3 border-b border-sf-border bg-sf-gray/20 flex items-center justify-between">
                         <div className="flex items-center gap-3 text-[12px] text-slate-500 font-bold">
@@ -109,7 +100,7 @@ export function LeadTable() {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                 <input placeholder="Filter results..." className="bg-white border border-sf-border rounded-[4px] h-8 pl-9 pr-4 text-[12px] w-48 focus:border-sf-blue outline-none transition-all" />
                             </div>
-                            <button className="p-1 px-2 border border-sf-border rounded-[4px] hover:bg-white text-slate-500"><Download size={14} /></button>
+                            <button className="p-1 px-2 border border-sf-border rounded-[4px] hover:bg-white text-slate-500" disabled={leads.length === 0}><Download size={14} /></button>
                             <button className="p-1 px-2 border border-sf-border rounded-[4px] hover:bg-white text-slate-500"><RefreshCw size={14} /></button>
                         </div>
                     </div>
@@ -119,7 +110,7 @@ export function LeadTable() {
                             <thead>
                                 <tr className="bg-white border-b border-sf-border sticky top-0 z-10">
                                     <th className="p-3 w-12 text-center pointer-events-auto">
-                                        <input type="checkbox" className="rounded" checked={selectedIds.length === leads.length} onChange={toggleAll} />
+                                        <input type="checkbox" className="rounded" checked={leads.length > 0 && selectedIds.length === leads.length} onChange={toggleAll} disabled={leads.length === 0} />
                                     </th>
                                     {['Lead Name', 'Company', 'Status', 'Owner', 'Source', 'Email'].map(h => (
                                         <th key={h} className="p-3 font-bold text-slate-600 uppercase text-[11px] tracking-wider border-r border-sf-border/30">{h}</th>
@@ -128,51 +119,74 @@ export function LeadTable() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-sf-border/50">
-                                {leads.map((lead, idx) => (
-                                    <motion.tr
-                                        key={lead.id}
-                                        layout
-                                        className={cn(
-                                            "group transition-all",
-                                            selectedIds.includes(lead.id) ? "bg-sf-blue/5" : "hover:bg-sf-gray/40"
-                                        )}
-                                    >
-                                        <td className="p-3 text-center">
-                                            <input type="checkbox" className="rounded" checked={selectedIds.includes(lead.id)} onChange={() => toggleSelect(lead.id)} />
-                                        </td>
-                                        <td className="p-3 flex items-center gap-3">
-                                            <span className="font-bold text-sf-blue hover:underline transition-all cursor-pointer truncate max-w-[150px]">{lead.name}</span>
-                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="p-1 hover:bg-white rounded border border-sf-border/50 text-slate-400"><Mail size={12} /></button>
-                                                <button className="p-1 hover:bg-white rounded border border-sf-border/50 text-slate-400"><Phone size={12} /></button>
-                                            </div>
-                                        </td>
-                                        <td className="p-3 font-semibold text-slate-700">{lead.company}</td>
-                                        <td className="p-3">
-                                            <span className={cn(
-                                                "px-2.5 py-0.5 rounded-full text-[10px] font-bold border",
-                                                lead.status === 'New' ? "bg-blue-50 text-blue-600 border-blue-200" :
-                                                    lead.status === 'Working' ? "bg-amber-50 text-amber-600 border-amber-200" :
-                                                        "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                            )}>
-                                                {lead.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-6 w-6 rounded-full bg-sf-gray flex items-center justify-center text-[10px] font-bold text-slate-500 ring-1 ring-sf-border">
-                                                    {lead.owner.split(' ').map(n => n[0]).join('')}
+                                {leads.length > 0 ? (
+                                    leads.map((lead, idx) => (
+                                        <motion.tr
+                                            key={lead.id}
+                                            layout
+                                            className={cn(
+                                                "group transition-all",
+                                                selectedIds.includes(lead.id) ? "bg-sf-blue/5" : "hover:bg-sf-gray/40"
+                                            )}
+                                        >
+                                            <td className="p-3 text-center">
+                                                <input type="checkbox" className="rounded" checked={selectedIds.includes(lead.id)} onChange={() => toggleSelect(lead.id)} />
+                                            </td>
+                                            <td className="p-3 flex items-center gap-3">
+                                                <span className="font-bold text-sf-blue hover:underline transition-all cursor-pointer truncate max-w-[150px]">{lead.name}</span>
+                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button className="p-1 hover:bg-white rounded border border-sf-border/50 text-slate-400"><Mail size={12} /></button>
+                                                    <button className="p-1 hover:bg-white rounded border border-sf-border/50 text-slate-400"><Phone size={12} /></button>
                                                 </div>
-                                                <span className="text-[12px] font-medium text-slate-600">{lead.owner}</span>
-                                            </div>
+                                            </td>
+                                            <td className="p-3 font-semibold text-slate-700">{lead.company}</td>
+                                            <td className="p-3">
+                                                <span className={cn(
+                                                    "px-2.5 py-0.5 rounded-full text-[10px] font-bold border",
+                                                    lead.status === 'New' ? "bg-blue-50 text-blue-600 border-blue-200" :
+                                                        lead.status === 'Working' ? "bg-amber-50 text-amber-600 border-amber-200" :
+                                                            "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                                )}>
+                                                    {lead.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-6 w-6 rounded-full bg-sf-gray flex items-center justify-center text-[10px] font-bold text-slate-500 ring-1 ring-sf-border">
+                                                        {lead.owner.split(' ').map((n: string) => n[0]).join('')}
+                                                    </div>
+                                                    <span className="text-[12px] font-medium text-slate-600">{lead.owner}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-3 text-slate-500 font-medium">{lead.source}</td>
+                                            <td className="p-3 text-sf-blue hover:underline cursor-pointer font-medium">{lead.email}</td>
+                                            <td className="p-3 text-right">
+                                                <button className="p-1 px-2 hover:bg-white rounded transition-all text-slate-400"><MoreVertical size={16} /></button>
+                                            </td>
+                                        </motion.tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={8} className="p-12 text-center">
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="flex flex-col items-center justify-center space-y-4"
+                                            >
+                                                <div className="h-16 w-16 bg-sf-gray rounded-full flex items-center justify-center text-slate-300">
+                                                    <LayoutGrid size={32} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-[14px] font-bold text-slate-800">No leads to display</h3>
+                                                    <p className="text-[12px] text-slate-500">Connect a database or create a new lead to get started.</p>
+                                                </div>
+                                                <button className="sf-btn-primary" onClick={() => setIsModalOpen(true)}>
+                                                    Create Your First Lead
+                                                </button>
+                                            </motion.div>
                                         </td>
-                                        <td className="p-3 text-slate-500 font-medium">{lead.source}</td>
-                                        <td className="p-3 text-sf-blue hover:underline cursor-pointer font-medium">{lead.email}</td>
-                                        <td className="p-3 text-right">
-                                            <button className="p-1 px-2 hover:bg-white rounded transition-all text-slate-400"><MoreVertical size={16} /></button>
-                                        </td>
-                                    </motion.tr>
-                                ))}
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

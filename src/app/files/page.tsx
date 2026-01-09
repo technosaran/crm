@@ -14,17 +14,13 @@ import {
     Image as ImageIcon,
     FileCode,
     File as FileIcon,
-    ChevronRight
+    ChevronRight,
+    Cloud
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const initialFiles = [
-    { id: 1, name: 'Q1_Proposal_V2.pdf', type: 'PDF', size: '2.4 MB', modified: '2 hours ago', owner: 'Alex Rivera', entity: 'Stark Industries' },
-    { id: 2, name: 'Enterprise_Contract.docx', type: 'DOC', size: '1.1 MB', modified: 'Yesterday', owner: 'Alex Rivera', entity: 'Pied Piper' },
-    { id: 3, name: 'Product_Demo_Video.mp4', type: 'VIDEO', size: '42.8 MB', modified: 'Jan 05, 2026', owner: 'Michael Chen', entity: 'Internal' },
-    { id: 4, name: 'Brand_Logo_Pack.zip', type: 'ARCHIVE', size: '12.5 MB', modified: 'Jan 02, 2026', owner: 'Sarah Jenkins', entity: 'Global Tech' },
-];
+const initialFiles: any[] = [];
 
 export default function FilesPage() {
     const [files, setFiles] = useState(initialFiles);
@@ -67,7 +63,7 @@ export default function FilesPage() {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 bg-white border border-sf-border rounded-[4px] shadow-sm overflow-hidden">
+                <div className="flex-1 bg-white border border-sf-border rounded-[4px] shadow-sm overflow-hidden min-h-[500px] flex flex-col">
                     <div className="p-4 border-b border-sf-border flex items-center justify-between bg-sf-gray/20">
                         <div className="flex items-center gap-4 text-[13px] text-slate-500 font-bold uppercase tracking-tighter">
                             <span className="cursor-pointer hover:text-sf-blue">Zenith Drive</span>
@@ -80,54 +76,51 @@ export default function FilesPage() {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-[13px] border-collapse">
-                            <thead className="bg-sf-gray/40 border-b border-sf-border">
-                                <tr>
-                                    <th className="p-3 w-12 text-center"><input type="checkbox" className="rounded" /></th>
-                                    {['Name', 'Type', 'Size', 'Entity', 'Modified By', 'Last Modified'].map(h => (
-                                        <th key={h} className="p-3 font-bold text-slate-600">{h}</th>
-                                    ))}
-                                    <th className="p-3 text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-sf-border">
-                                {files.map((file) => (
-                                    <tr key={file.id} className="hover:bg-sf-gray/10 group transition-colors">
-                                        <td className="p-3 text-center"><input type="checkbox" className="rounded" /></td>
-                                        <td className="p-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-sf-gray p-1.5 rounded">{getFileIcon(file.type)}</div>
-                                                <span className="font-bold text-sf-blue hover:underline cursor-pointer">{file.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-3 text-slate-600 font-medium">{file.type}</td>
-                                        <td className="p-3 text-slate-500">{file.size}</td>
-                                        <td className="p-3 font-semibold text-slate-700">{file.entity}</td>
-                                        <td className="p-3 text-[12px] font-medium">@{file.owner.split(' ')[0].toLowerCase()}</td>
-                                        <td className="p-3 text-slate-500">{file.modified}</td>
-                                        <td className="p-3 text-right">
-                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="p-1.5 hover:bg-sf-gray rounded text-slate-400 hover:text-sf-blue"><Download size={16} /></button>
-                                                <button className="p-1.5 hover:bg-sf-gray rounded text-slate-400 hover:text-red-500"><Trash2 size={16} /></button>
-                                                <button className="p-1.5 hover:bg-sf-gray rounded text-slate-400"><MoreVertical size={16} /></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="relative"
+                        >
+                            <div className="h-28 w-28 bg-[#00A1E0]/5 rounded-full flex items-center justify-center text-[#00A1E0]">
+                                <Cloud size={56} />
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 border border-sf-border shadow-sm text-slate-400">
+                                <Upload size={20} />
+                            </div>
+                        </motion.div>
 
-                    <div className="p-12 flex flex-col items-center justify-center text-center space-y-4">
-                        <div className="h-16 w-16 bg-sf-gray rounded-full flex items-center justify-center text-slate-300">
-                            <Upload size={32} />
+                        <div className="max-w-sm space-y-2 px-4">
+                            <h3 className="text-[18px] font-bold text-slate-800">Your Cloud Drive is Empty</h3>
+                            <p className="text-[13px] text-slate-500 leading-relaxed">
+                                Upload proposals, contracts, and marketing assets here. They'll be instantly available to your entire team with managed access control.
+                            </p>
                         </div>
-                        <div>
-                            <p className="text-[14px] font-bold text-slate-800">Drag & Drop files to upload</p>
-                            <p className="text-[12px] text-slate-500">Supports PDF, DOC, CSV, Image, and Archive files up to 50MB.</p>
+
+                        <div className="flex items-center justify-center gap-3 w-full max-w-md border-t border-sf-border pt-8 mt-4">
+                            <div className="flex flex-col items-center gap-2 text-[11px] font-bold text-slate-400">
+                                <div className="h-10 w-10 bg-sf-gray rounded flex items-center justify-center text-slate-400">
+                                    <FileText size={20} />
+                                </div>
+                                Documents
+                            </div>
+                            <div className="w-8 border-t border-sf-border" />
+                            <div className="flex flex-col items-center gap-2 text-[11px] font-bold text-slate-400">
+                                <div className="h-10 w-10 bg-sf-gray rounded flex items-center justify-center text-slate-400">
+                                    <ImageIcon size={20} />
+                                </div>
+                                Media
+                            </div>
+                            <div className="w-8 border-t border-sf-border" />
+                            <div className="flex flex-col items-center gap-2 text-[11px] font-bold text-slate-400">
+                                <div className="h-10 w-10 bg-sf-gray rounded flex items-center justify-center text-slate-400">
+                                    <FileCode size={20} />
+                                </div>
+                                Archives
+                            </div>
                         </div>
-                        <button className="sf-btn-neutral" onClick={handleUpload}>Select Files</button>
+
+                        <button className="sf-btn-primary mt-4" onClick={handleUpload}>Browse Files to Upload</button>
                     </div>
                 </div>
             </div>

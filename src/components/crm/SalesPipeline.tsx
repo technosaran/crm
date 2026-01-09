@@ -4,13 +4,8 @@ import React, { useState } from 'react';
 import {
     Plus,
     MoreHorizontal,
-    Clock,
-    CheckCircle2,
     ChevronRight,
     TrendingUp,
-    Mail,
-    Phone,
-    Calendar,
     FileText,
     UserPlus,
     History,
@@ -40,12 +35,7 @@ interface TimelineItem {
     iconBg: string;
 }
 
-const timeline: TimelineItem[] = [
-    { id: 1, type: 'task', title: 'Finalize pricing model', date: 'Jan 12, 2026', user: 'Alex Rivera', icon: CheckCircle2, iconBg: 'bg-emerald-500' },
-    { id: 2, type: 'call', title: 'Follow-up call with CTO', date: 'Jan 10, 2026', user: 'Sarah Miller', icon: Phone, iconBg: 'bg-sf-blue' },
-    { id: 3, type: 'email', title: 'Sent proposal V2.1', date: 'Jan 09, 2026', user: 'Alex Rivera', icon: Mail, iconBg: 'bg-amber-500' },
-    { id: 4, type: 'event', title: 'Initial Discovery Meeting', date: 'Jan 05, 2026', user: 'Admin', icon: Calendar, iconBg: 'bg-indigo-500' },
-];
+const timeline: TimelineItem[] = [];
 
 export function SalesPipeline() {
     const { locale, currency } = useGlobalStore();
@@ -68,7 +58,7 @@ export function SalesPipeline() {
                             <nav className="text-[11px] text-slate-500 flex items-center gap-1 font-bold uppercase tracking-wider">
                                 Opportunities <ChevronRight size={10} />
                             </nav>
-                            <h1 className="text-[20px] font-bold leading-tight text-slate-900">Elite Cloud Infrastructure Expansion</h1>
+                            <h1 className="text-[20px] font-bold leading-tight text-slate-900">Opportunity Name</h1>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -135,14 +125,14 @@ export function SalesPipeline() {
                                         className="grid grid-cols-2 gap-y-8"
                                     >
                                         {[
-                                            { label: 'Amount', value: formatCurrency(250000, currency, locale) },
-                                            { label: 'Close Date', value: '1/31/2026' },
-                                            { label: 'Account Name', value: 'Global Tech Industries' },
-                                            { label: 'Opportunity Owner', value: 'Alex Rivera' },
-                                            { label: 'Probability', value: '60%' },
-                                            { label: 'Stage', value: 'Proposal/Price Quote' },
-                                            { label: 'Lead Source', value: 'External Referral' },
-                                            { label: 'Primary Contact', value: 'Sarah Miller' },
+                                            { label: 'Amount', value: formatCurrency(0, currency, locale) },
+                                            { label: 'Close Date', value: '---' },
+                                            { label: 'Account Name', value: '---' },
+                                            { label: 'Opportunity Owner', value: '---' },
+                                            { label: 'Probability', value: '0%' },
+                                            { label: 'Stage', value: 'New' },
+                                            { label: 'Lead Source', value: '---' },
+                                            { label: 'Primary Contact', value: '---' },
                                         ].map((field, i) => (
                                             <div key={i} className="group border-b border-transparent hover:border-sf-border pb-1 pr-4 transition-all">
                                                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide mb-1 flex items-center justify-between">
@@ -195,37 +185,44 @@ export function SalesPipeline() {
                             </div>
 
                             <div className="relative space-y-8 before:absolute before:inset-0 before:ml-4 before:-z-10 before:h-full before:w-0.5 before:bg-sf-border">
-                                {timeline.map((item, idx) => (
-                                    <motion.div
-                                        key={item.id}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.1 }}
-                                        className="relative flex items-start gap-4"
-                                    >
-                                        <div className={cn(
-                                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white shadow-sm ring-4 ring-white",
-                                            item.iconBg
-                                        )}>
-                                            <item.icon size={16} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <h4 className="text-[13px] font-bold text-sf-blue hover:underline cursor-pointer truncate">
-                                                    {item.title}
-                                                </h4>
-                                                <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">{item.date}</span>
+                                {timeline.length > 0 ? (
+                                    timeline.map((item, idx) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className="relative flex items-start gap-4"
+                                        >
+                                            <div className={cn(
+                                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white shadow-sm ring-4 ring-white",
+                                                item.iconBg
+                                            )}>
+                                                <item.icon size={16} />
                                             </div>
-                                            <p className="text-[12px] text-slate-600 line-clamp-1">
-                                                Performed by <span className="font-semibold">{item.user}</span>
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                ))}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <h4 className="text-[13px] font-bold text-sf-blue hover:underline cursor-pointer truncate">
+                                                        {item.title}
+                                                    </h4>
+                                                    <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">{item.date}</span>
+                                                </div>
+                                                <p className="text-[12px] text-slate-600 line-clamp-1">
+                                                    Performed by <span className="font-semibold">{item.user}</span>
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-8">
+                                        <p className="text-[13px] font-medium text-slate-500 italic">No past activity</p>
+                                        <p className="text-[11px] text-slate-400 mt-1">Updates will appear here dynamically</p>
+                                    </div>
+                                )}
                             </div>
 
                             <button className="w-full mt-4 text-[12px] font-bold text-sf-blue hover:underline py-2 border-t border-sf-border">
-                                View All Activities
+                                View Full History
                             </button>
                         </div>
                     </div>
@@ -233,15 +230,10 @@ export function SalesPipeline() {
                     <div className="bg-white border border-sf-border rounded-[4px] shadow-sm p-4">
                         <h3 className="font-bold text-[15px] mb-4 flex items-center gap-2">
                             <UserPlus size={18} className="text-indigo-500" />
-                            Contact Roles (1)
+                            Contact Roles (0)
                         </h3>
-                        <div className="flex items-center gap-3 bg-sf-gray/50 p-3 rounded-lg border border-sf-border">
-                            <div className="h-10 w-10 rounded-full bg-sf-blue flex items-center justify-center text-white font-bold text-xs">SM</div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-[13px] font-bold text-slate-800">Sarah Miller</p>
-                                <p className="text-[11px] text-slate-500">Decision Maker • Apex Systems</p>
-                            </div>
-                            <MoreHorizontal size={16} className="text-slate-400" />
+                        <div className="text-center py-6">
+                            <p className="text-[12px] text-slate-500 italic">No contacts associated</p>
                         </div>
                         <button className="w-full mt-4 sf-btn-neutral">Add Relationship</button>
                     </div>

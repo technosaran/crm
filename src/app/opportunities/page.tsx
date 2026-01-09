@@ -65,7 +65,7 @@ export default function OpportunitiesPage() {
 
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-sf-border">
                     <div className="flex items-center gap-4 text-[13px] text-slate-500 font-medium">
-                        <span><span className="font-bold text-slate-800">12</span> items • Updated 1 min ago</span>
+                        <span><span className="font-bold text-slate-800">0</span> items • Sorted by Close Date</span>
                         <div className="h-4 w-px bg-sf-border" />
                         <span className="flex items-center gap-1 cursor-pointer hover:text-sf-blue">
                             Sorted by Close Date <ChevronDown size={12} />

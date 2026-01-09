@@ -3,7 +3,6 @@
 import React from 'react';
 import {
     TrendingUp,
-    TrendingDown,
     Users,
     Target,
     DollarSign,
@@ -20,44 +19,44 @@ export function StatCards() {
 
     const stats = [
         {
-            label: 'Q1 Projected Revenue',
-            value: 1284500,
-            trend: '+12.5%',
+            label: 'Total Revenue (YTD)',
+            value: 0,
+            trend: '0%',
             isPositive: true,
             icon: DollarSign,
             color: 'text-[#0176D3]',
             bg: 'bg-blue-50',
-            description: 'vs. budget: $1.1M'
+            description: 'Awaiting data sync...'
         },
         {
-            label: 'Active Opportunities',
-            value: 42,
-            trend: '+4',
+            label: 'Open Opportunities',
+            value: 0,
+            trend: '0',
             isPositive: true,
             icon: Target,
             color: 'text-[#54698d]',
             bg: 'bg-slate-50',
-            description: 'Potential: $4.2M'
+            description: 'No active deals'
         },
         {
-            label: 'New Leads (This Week)',
-            value: 156,
-            trend: '+24%',
+            label: 'Active Leads',
+            value: 0,
+            trend: '0%',
             isPositive: true,
             icon: Users,
             color: 'text-[#f2672a]',
             bg: 'bg-orange-50',
-            description: 'Conversion: 8%'
+            description: 'List views empty'
         },
         {
-            label: 'Team Velocity',
-            value: '92%',
-            trend: '-2.1%',
-            isPositive: false,
+            label: 'SLA Performance',
+            value: '0%',
+            trend: '0%',
+            isPositive: true,
             icon: Zap,
             color: 'text-[#2E844A]',
             bg: 'bg-emerald-50',
-            description: 'SLA Response: 2.4h'
+            description: 'No service cases'
         }
     ];
 
@@ -71,7 +70,6 @@ export function StatCards() {
                     transition={{ delay: idx * 0.1 }}
                     className="group sf-card p-6 relative overflow-hidden"
                 >
-                    {/* Subtle hover background sweep */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-sf-blue/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                     <div className="relative flex items-center justify-between mb-4">
@@ -81,9 +79,8 @@ export function StatCards() {
                         <div className="flex items-center gap-1">
                             <span className={cn(
                                 "text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5",
-                                stat.isPositive ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                "bg-slate-50 text-slate-400"
                             )}>
-                                {stat.isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                                 {stat.trend}
                             </span>
                             <button className="p-1 hover:bg-sf-gray rounded text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">

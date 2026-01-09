@@ -6,6 +6,8 @@ import { CommandMenu } from "./CommandMenu";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 
+import { AIAssistant } from "@/components/shared/AIAssistant";
+
 export function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isLoginPage = pathname === "/login";
@@ -14,6 +16,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <>
             <Navigation />
             <CommandMenu />
+            <AIAssistant />
             <Toaster position="top-right" richColors />
             <main className={cn(
                 "min-h-screen transition-all",
