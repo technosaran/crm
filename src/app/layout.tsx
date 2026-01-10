@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google"; // Import Outfit
 import "./globals.css";
 import { Shell } from "@/components/layout/Shell";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Home | Zenith CRM",
@@ -31,7 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${outfit.variable} antialiased bg-zenith-bg text-zenith-text`}
+        className="antialiased bg-zenith-bg text-zenith-text"
+        style={{
+          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+        }}
       >
         <Shell>{children}</Shell>
       </body>
