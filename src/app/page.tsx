@@ -30,24 +30,24 @@ export default function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-2xl p-1 shadow-lg shadow-indigo-500/10 border border-white/60"
       >
-        <div className="relative bg-[#0F172A] rounded-xl overflow-hidden px-8 py-10 md:px-12 md:py-12">
+        <div className="relative bg-[#0F172A] rounded-xl overflow-hidden px-6 py-8 sm:px-8 sm:py-10 md:px-12 md:py-12">
 
           {/* Abstract Background Shapes */}
           <div className="absolute top-0 right-0 w-[500px] h-full bg-gradient-to-l from-indigo-500/20 via-violet-500/10 to-transparent blur-3xl" />
           <div className="absolute -bottom-24 -right-12 w-64 h-64 bg-indigo-500/30 rounded-full blur-[80px]" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
 
-          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 z-10">
-            <div className="flex items-center gap-6">
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_0_40px_-10px_rgba(99,102,241,0.6)] ring-4 ring-white/10 flex items-center justify-center text-3xl font-bold text-white uppercase font-outfit">
+          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8 z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-[0_0_40px_-10px_rgba(99,102,241,0.6)] ring-4 ring-white/10 flex items-center justify-center text-2xl sm:text-3xl font-bold text-white uppercase font-outfit">
                 {user.name.charAt(0)}
               </div>
               <div className="space-y-2">
-                <h1 className="text-4xl font-bold text-white tracking-tight font-outfit">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight font-outfit">
                   Good evening, {user.name.split(' ')[0]}
                 </h1>
-                <div className="flex items-center gap-4 text-slate-400 text-sm font-medium">
-                  <span className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10 text-indigo-300">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-slate-400 text-sm font-medium">
+                  <span className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full border border-white/10 text-indigo-300 w-fit">
                     <Sparkles size={14} /> Global Administrator
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -57,14 +57,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button className="h-12 px-6 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 border border-white/10 transition-all flex items-center gap-2 backdrop-blur-md">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <button className="h-12 px-6 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 border border-white/10 transition-all flex items-center justify-center gap-2 backdrop-blur-md">
                 <Globe size={18} className="text-indigo-300" />
-                {timeZone}
+                <span className="text-sm sm:text-base">{timeZone}</span>
               </button>
-              <button className="h-12 px-8 bg-white text-indigo-950 font-bold rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all flex items-center gap-2 hover:scale-105 active:scale-95">
+              <button className="h-12 px-8 bg-white text-indigo-950 font-bold rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95">
                 <Plus size={20} className="stroke-[3]" />
-                New Record
+                <span className="text-sm sm:text-base">New Record</span>
               </button>
             </div>
           </div>
@@ -74,37 +74,37 @@ export default function Dashboard() {
       {/* Stats Section */}
       <StatCards />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Pipeline (Kanban) */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="glass-card flex flex-col min-h-[600px] overflow-hidden">
-            <div className="p-5 border-b border-zenith-border/50 flex items-center justify-between bg-slate-50/50">
+        <div className="xl:col-span-2 space-y-6">
+          <div className="glass-card flex flex-col min-h-[500px] sm:min-h-[600px] overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-zenith-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 bg-slate-50/50">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-white shadow-sm border border-slate-100 rounded-lg text-indigo-600">
                   <Briefcase size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 tracking-tight font-outfit">Sales Pipeline</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight font-outfit">Sales Pipeline</h2>
                   <p className="text-xs text-slate-500 font-medium">Manage and track your active deals</p>
                 </div>
               </div>
-              <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1">
+              <button className="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1 w-fit">
                 View Reports <ArrowRight size={16} />
               </button>
             </div>
-            <div className="p-4 flex-1 bg-slate-50/30">
+            <div className="p-3 sm:p-4 flex-1 bg-slate-50/30">
               <KanbanView />
             </div>
           </div>
         </div>
 
         {/* Intelligence & Activity Column */}
-        <div className="space-y-8">
+        <div className="space-y-6 lg:space-y-8">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass-card p-8 relative overflow-hidden group"
+            className="glass-card p-6 sm:p-8 relative overflow-hidden group"
           >
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity">
               <BarChart2 size={120} />
@@ -115,10 +115,10 @@ export default function Dashboard() {
                 <div className="p-2 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg text-white shadow-lg shadow-indigo-500/20">
                   <Sparkles size={18} />
                 </div>
-                <h3 className="text-base font-bold text-slate-800 font-outfit">AI Revenue Intelligence</h3>
+                <h3 className="text-sm sm:text-base font-bold text-slate-800 font-outfit">AI Revenue Intelligence</h3>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm space-y-3">
                   <div className="flex justify-between items-center text-xs font-medium text-slate-500">
                     <span>Forecast Accuracy</span>
@@ -151,13 +151,13 @@ export default function Dashboard() {
             transition={{ delay: 0.5 }}
             className="glass-card flex flex-col"
           >
-            <div className="p-5 border-b border-zenith-border/50 flex items-center justify-between bg-slate-50/50">
+            <div className="p-4 sm:p-5 border-b border-zenith-border/50 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-3">
                 <Users2 size={18} className="text-slate-500" />
                 <h3 className="text-sm font-bold text-slate-800 font-outfit">Recent Activity</h3>
               </div>
             </div>
-            <div className="max-h-[350px] overflow-y-auto p-2">
+            <div className="max-h-[300px] sm:max-h-[350px] overflow-y-auto p-2">
               <AuditTrail />
             </div>
           </motion.div>
