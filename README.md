@@ -2,6 +2,12 @@
 
 A modern, secure, and feature-rich CRM application built with Next.js 16, TypeScript, Supabase, and Tailwind CSS.
 
+## 🚀 Quick Start
+
+**New to this project?** Check out the [**SETUP_GUIDE.md**](./SETUP_GUIDE.md) for step-by-step instructions!
+
+Already familiar with Next.js and Supabase? Jump to [Installation](#-installation).
+
 ## 🚀 Features
 
 ### Core Modules
@@ -34,7 +40,7 @@ A modern, secure, and feature-rich CRM application built with Next.js 16, TypeSc
 ## 📋 Prerequisites
 
 - Node.js 18+ and npm
-- A Supabase account (free tier available)
+- A Supabase account (free tier available at [supabase.com](https://supabase.com))
 
 ## 🛠️ Installation
 
@@ -49,10 +55,12 @@ npm install
 ### 2. Set Up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Go to Settings > API to find your credentials
-3. Copy your project URL and anon key
+2. Go to **Settings > API** to find your credentials
+3. Copy your **Project URL** and **anon/public key**
 
 ### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root:
 
 ```bash
 cp .env.example .env.local
@@ -61,14 +69,16 @@ cp .env.example .env.local
 Edit `.env.local` and add your Supabase credentials:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
+⚠️ **Important**: Without valid Supabase credentials, authentication and data features won't work. The app will build and run but database operations will fail.
+
 ### 4. Set Up Database
 
-1. Open the Supabase SQL Editor
+1. Open the Supabase SQL Editor in your project dashboard
 2. Copy the contents of `database/schema.sql`
 3. Execute the SQL to create tables and policies
 4. See `database/README.md` for detailed instructions
@@ -83,7 +93,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### 6. Create Your First Admin User
 
-1. Sign up through the login page
+1. Sign up through the login page at `/login`
 2. In Supabase SQL Editor, run:
 
 ```sql
@@ -91,6 +101,8 @@ UPDATE public.user_profiles
 SET role = 'SUPER_ADMIN'
 WHERE email = 'your-email@example.com';
 ```
+
+3. Log out and log back in to see admin features
 
 ## 🏗️ Project Structure
 
@@ -295,13 +307,54 @@ The app can be deployed to any platform that supports Next.js:
 
 This project is for educational and commercial use.
 
-## 🆘 Support
+## 🆘 Support & Troubleshooting
+
+### Common Issues
+
+#### Build Fails
+- **Error**: `npm run build` fails
+- **Solution**: Make sure all dependencies are installed with `npm install`
+
+#### App Won't Connect to Database
+- **Error**: Database operations fail or return empty results
+- **Solution**: 
+  1. Verify your `.env.local` file exists and has valid Supabase credentials
+  2. Check that your Supabase project is active
+  3. Ensure database schema has been set up (see `database/schema.sql`)
+
+#### Can't Log In
+- **Error**: Login page shows error
+- **Solution**:
+  1. Verify Supabase credentials in `.env.local`
+  2. Check that authentication is enabled in your Supabase project
+  3. Make sure you've created a user account in Supabase Auth
+
+#### Features Not Working
+- **Error**: Leads, Contacts, or other features show no data
+- **Solution**:
+  1. Verify database tables were created using `database/schema.sql`
+  2. Check browser console for errors
+  3. Ensure you're logged in with proper permissions
+  4. Verify Row Level Security policies are set up correctly
+
+#### Redirect Loop on Login
+- **Error**: Constant redirects between login and dashboard
+- **Solution**:
+  1. Clear browser cookies and local storage
+  2. Verify middleware is configured correctly
+  3. Check that Supabase session is being created properly
+
+### Getting Help
 
 For issues and questions:
-1. Check `SECURITY_ENHANCEMENTS.md`
-2. Check `database/README.md`
-3. Review Supabase documentation
-4. Open an issue on GitHub
+1. Check `SECURITY_ENHANCEMENTS.md` for security-related questions
+2. Check `database/README.md` for database setup help
+3. Review [Supabase documentation](https://supabase.com/docs)
+4. Open an issue on GitHub with:
+   - Description of the problem
+   - Steps to reproduce
+   - Error messages from browser console
+   - Your Node.js and npm versions
 
 ## ✅ Checklist for Production
 
