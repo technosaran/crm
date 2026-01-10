@@ -49,7 +49,7 @@ export function KanbanView() {
     };
 
     return (
-        <div className="flex gap-6 overflow-x-auto pb-6 -mx-4 px-4 scrollbar-hide">
+        <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-4 px-4 scrollbar-hide">
             {STAGES.map((stage) => {
                 const stageDeals = deals.filter(d => d.stage === stage.id);
                 const totalValue = stageDeals.reduce((sum, d) => sum + d.value, 0);
@@ -59,7 +59,7 @@ export function KanbanView() {
                         key={stage.id}
                         onDragOver={allowDrop}
                         onDrop={(e) => onDrop(e, stage.id)}
-                        className="min-w-[300px] w-[300px] flex flex-col gap-4"
+                        className="min-w-[280px] w-[280px] sm:min-w-[300px] sm:w-[300px] flex flex-col gap-4"
                     >
                         <div className="flex flex-col gap-1 px-1">
                             <div className="flex items-center justify-between">

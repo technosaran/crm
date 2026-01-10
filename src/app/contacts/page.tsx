@@ -36,25 +36,25 @@ export default function ContactsPage() {
 
     return (
         <div className="space-y-6 pb-12">
-            <div className="bg-white border border-sf-border rounded-[4px] p-4 shadow-sm">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="bg-white border border-sf-border rounded-[4px] p-3 sm:p-4 shadow-sm">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="bg-[#a094ed] h-10 w-10 shadow-lg rounded-full flex items-center justify-center text-white">
+                        <div className="bg-[#a094ed] h-10 w-10 shadow-lg rounded-full flex items-center justify-center text-white flex-shrink-0">
                             <User size={20} />
                         </div>
                         <div>
                             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Contacts</p>
-                            <h2 className="text-[20px] font-bold text-slate-900 leading-tight flex items-center gap-2">
+                            <h2 className="text-lg sm:text-[20px] font-bold text-slate-900 leading-tight flex items-center gap-2">
                                 All Contacts <ChevronDown size={14} className="text-slate-400" />
                             </h2>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button className="sf-btn-neutral" onClick={() => toast.info("Filter sidebar coming soon")}>
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <button className="sf-btn-neutral hidden sm:flex" onClick={() => toast.info("Filter sidebar coming soon")}>
                             <Filter size={14} className="mr-2" />
                             Filter
                         </button>
-                        <button className="sf-btn-primary" onClick={() => setIsModalOpen(true)}>
+                        <button className="sf-btn-primary flex-1 sm:flex-initial" onClick={() => setIsModalOpen(true)}>
                             <Plus size={14} className="mr-2" />
                             New Contact
                         </button>

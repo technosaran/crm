@@ -16,22 +16,22 @@ export default function AccountsPage() {
 
     return (
         <div className="space-y-6 pb-12">
-            <div className="bg-white border border-sf-border rounded-[4px] p-6 shadow-sm">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="bg-white border border-sf-border rounded-[4px] p-4 sm:p-6 shadow-sm">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="bg-[#7F8DE1] h-12 w-12 rounded flex items-center justify-center text-white shadow-md">
+                        <div className="bg-[#7F8DE1] h-12 w-12 rounded flex items-center justify-center text-white shadow-md flex-shrink-0">
                             <Grid size={28} />
                         </div>
                         <div>
                             <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1">Accounts</p>
-                            <h1 className="text-[24px] font-bold tracking-tight text-slate-900 leading-none">
+                            <h1 className="text-xl sm:text-[24px] font-bold tracking-tight text-slate-900 leading-none">
                                 All Accounts
                             </h1>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <div className="flex border border-sf-border rounded-[4px] overflow-hidden bg-white mr-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex border border-sf-border rounded-[4px] overflow-hidden bg-white">
                             <button
                                 onClick={() => setViewMode('grid')}
                                 className={cn(
@@ -53,7 +53,7 @@ export default function AccountsPage() {
                         </div>
                         <button className="sf-btn-neutral flex items-center gap-2" onClick={() => toast.info("Filter sidebar coming soon")}>
                             <Filter size={14} />
-                            Filters
+                            <span className="hidden sm:inline">Filters</span>
                         </button>
                         <button className="sf-btn-neutral" onClick={handleExport}>
                             <Download size={14} />

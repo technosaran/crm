@@ -36,11 +36,16 @@
 
   /* Premium Buttons */
   .btn-primary {
-    @apply bg-gradient-to-r from-zenith-primary to-zenith-secondary text-white px-5 py-2 rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-indigo-500/25 transition-all active:scale-[0.98] disabled:opacity-50;
+    @apply bg-gradient-to-r from-zenith-primary to-zenith-secondary text-white px-5 py-2 rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-indigo-500/25 transition-all active:scale-[0.98] disabled:opacity-50 min-h-[44px] touch-manipulation;
   }
 
   .btn-neutral {
-    @apply bg-white border border-zenith-border text-zenith-text-light px-5 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 hover:text-zenith-primary transition-all active:scale-[0.98] disabled:opacity-50;
+    @apply bg-white border border-zenith-border text-zenith-text-light px-5 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 hover:text-zenith-primary transition-all active:scale-[0.98] disabled:opacity-50 min-h-[44px] touch-manipulation;
+  }
+
+  /* Mobile-friendly tap targets */
+  button, a {
+    @apply touch-manipulation;
   }
 }
 
