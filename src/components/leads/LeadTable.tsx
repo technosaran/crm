@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Modal } from '@/components/shared/Modal';
 import { useLeads } from '@/hooks/useLeads';
+import { validateName, validateEmail, validatePhone, sanitizeString } from '@/lib/validation';
 
 const initialLeads: any[] = [];
 
@@ -258,10 +259,67 @@ function LeadForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: (d
         phone: '',
         source: 'Web'
     });
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSuccess(formData);
+        setErrors({});
+        setIsSubmitting(true);
+
+        // Validate fields using imported functions
+        const newErrors: Record<string, string> = {};
+
+        const firstNameValidation = validateName(formData.first_name);
+        if (formData.first_name && !firstNameValidation.valid) {
+            newErrors.first_name = firstNameValidation.error!;
+        }
+
+        const lastNameValidation = validateName(formData.last_name);
+        if (!lastNameValidation.valid) {
+            newErrors.last_name = lastNameValidation.error!;
+        }
+
+        const companyValidation = validateName(formData.company);
+        if (!companyValidation.valid) {
+            newErrors.company = companyValidation.error!;
+        }
+
+        if (formData.email) {
+            const emailValidation = validateEmail(formData.email);
+            if (!emailValidation.valid) {
+                newErrors.email = emailValidation.error!;
+            }
+        }
+
+        if (formData.phone) {
+            const phoneValidation = validatePhone(formData.phone);
+            if (!phoneValidation.valid) {
+                newErrors.phone = phoneValidation.error!;
+            }
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Sanitize and submit
+        const sanitizedData = {
+            first_name: sanitizeString(formData.first_name),
+            last_name: sanitizeString(formData.last_name),
+            company: sanitizeString(formData.company),
+            email: formData.email ? sanitizeString(formData.email.toLowerCase()) : '',
+            phone: formData.phone ? sanitizeString(formData.phone) : '',
+            source: formData.source
+        };
+
+        try {
+            await onSuccess(sanitizedData);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -270,31 +328,54 @@ function LeadForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: (d
                 <h4 className="text-[14px] font-bold text-slate-900 border-b border-sf-border pb-2">Lead Information</h4>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">First Name</label>
-                    <input className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} />
+                    <input 
+                        className={`w-full bg-white border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all ${errors.first_name ? 'border-red-500' : 'border-sf-border'}`}
+                        value={formData.first_name} 
+                        onChange={e => setFormData({ ...formData, first_name: e.target.value })} 
+                    />
+                    {errors.first_name && <p className="text-xs text-red-600">{errors.first_name}</p>}
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Last Name <span className="text-red-500">*</span></label>
-                    <input className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all" required
-                        value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} />
+                    <input 
+                        className={`w-full bg-white border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all ${errors.last_name ? 'border-red-500' : 'border-sf-border'}`}
+                        required
+                        value={formData.last_name} 
+                        onChange={e => setFormData({ ...formData, last_name: e.target.value })} 
+                    />
+                    {errors.last_name && <p className="text-xs text-red-600">{errors.last_name}</p>}
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Company <span className="text-red-500">*</span></label>
-                    <input className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all" required
-                        value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} />
+                    <input 
+                        className={`w-full bg-white border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all ${errors.company ? 'border-red-500' : 'border-sf-border'}`}
+                        required
+                        value={formData.company} 
+                        onChange={e => setFormData({ ...formData, company: e.target.value })} 
+                    />
+                    {errors.company && <p className="text-xs text-red-600">{errors.company}</p>}
                 </div>
             </div>
             <div className="space-y-4">
                 <h4 className="text-[14px] font-bold text-slate-900 border-b border-sf-border pb-2">Contact Details</h4>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Email</label>
-                    <input type="email" className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                    <input 
+                        type="email" 
+                        className={`w-full bg-white border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all ${errors.email ? 'border-red-500' : 'border-sf-border'}`}
+                        value={formData.email} 
+                        onChange={e => setFormData({ ...formData, email: e.target.value })} 
+                    />
+                    {errors.email && <p className="text-xs text-red-600">{errors.email}</p>}
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Phone</label>
-                    <input className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                    <input 
+                        className={`w-full bg-white border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all ${errors.phone ? 'border-red-500' : 'border-sf-border'}`}
+                        value={formData.phone} 
+                        onChange={e => setFormData({ ...formData, phone: e.target.value })} 
+                    />
+                    {errors.phone && <p className="text-xs text-red-600">{errors.phone}</p>}
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Lead Source</label>
@@ -308,8 +389,10 @@ function LeadForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess: (d
                 </div>
             </div>
             <div className="col-span-2 flex justify-end gap-2 pt-4 border-t border-sf-border">
-                <button type="button" onClick={onCancel} className="sf-btn-neutral">Cancel</button>
-                <button type="submit" className="sf-btn-primary">Save Lead</button>
+                <button type="button" onClick={onCancel} className="sf-btn-neutral" disabled={isSubmitting}>Cancel</button>
+                <button type="submit" className="sf-btn-primary" disabled={isSubmitting}>
+                    {isSubmitting ? 'Saving...' : 'Save Lead'}
+                </button>
             </div>
         </form>
     );
