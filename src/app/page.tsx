@@ -1,6 +1,5 @@
 "use client";
 
-import { StatCards } from "@/components/dashboard/StatCards";
 import { AuditTrail } from "@/components/shared/AuditTrail";
 import { motion } from "framer-motion";
 import {
@@ -31,7 +30,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { opportunities, loading: oppsLoading } = useOpportunities();
   const { tasks, loading: tasksLoading } = useTasks();
-  const { cases, loading: casesLoading } = useCases();
+  const { cases } = useCases();
 
   // Calculate stats
   const stats = useMemo(() => {
