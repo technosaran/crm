@@ -17,6 +17,9 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSwitcher } from './GlobalSwitcher';
+import { NotificationBell } from './NotificationBell';
+import { CurrencySwitcher } from './CurrencySwitcher';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavigationProps {
@@ -50,7 +53,7 @@ export function Navigation({ onMenuClick }: NavigationProps) {
                     >
                         <Menu size={20} className="stroke-[1.5]" />
                     </button>
-                    
+
                     <div className="relative hidden sm:block group">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                         <input
@@ -63,21 +66,24 @@ export function Navigation({ onMenuClick }: NavigationProps) {
 
                 <div className="flex items-center gap-1 sm:gap-2">
                     <GlobalSwitcher />
-                    <div className="flex items-center gap-1 border-l border-slate-200 ml-2 pl-2 sm:pl-4">
+                    <div className="flex items-center gap-1 sm:gap-2 border-l border-slate-200 ml-2 pl-2 sm:pl-4">
+                        <div className="hidden md:flex items-center gap-1">
+                            <CurrencySwitcher />
+                            <LanguageSwitcher />
+                        </div>
+                        <NotificationBell />
                         {[
                             { Icon: Plus, showOnMobile: true },
                             { Icon: History, showOnMobile: false },
                             { Icon: Star, showOnMobile: false },
                             { Icon: HelpCircle, showOnMobile: false },
                             { Icon: Settings, showOnMobile: true },
-                            { Icon: Bell, showOnMobile: true, hasBadge: true }
-                        ].map(({ Icon, showOnMobile, hasBadge }, i) => (
+                        ].map(({ Icon, showOnMobile }, i) => (
                             <button key={i} className={cn(
                                 "p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all relative group",
                                 !showOnMobile && "hidden sm:flex"
                             )}>
                                 <Icon size={20} className="stroke-[1.5]" />
-                                {hasBadge && <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white" />}
                             </button>
                         ))}
                     </div>

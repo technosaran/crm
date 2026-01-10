@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -20,40 +20,70 @@ export interface Lead {
     updated_at: string;
 }
 
-export function useLeads() {
+export interface LeadFilters {
+    status?: string;
+    search?: string;
+    page: number;
+    pageSize: number;
+}
+
+export function useLeads(initialFilters: Partial<LeadFilters> = {}) {
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
+    const [totalCount, setTotalCount] = useState(0);
+    const [filters, setFilters] = useState<LeadFilters>({
+        page: 1,
+        pageSize: 20,
+        ...initialFilters
+    });
+
     const supabase = createClient();
 
-    const fetchLeads = async () => {
+    const fetchLeads = useCallback(async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+            const from = (filters.page - 1) * filters.pageSize;
+            const to = from + filters.pageSize - 1;
+
+            let query = supabase
                 .from('leads')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .select('*', { count: 'exact' });
+
+            if (filters.status) {
+                query = query.eq('status', filters.status);
+            }
+
+            if (filters.search) {
+                query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,company_name.ilike.%${filters.search}%`);
+            }
+
+            const { data, error, count } = await query
+                .order('created_at', { ascending: false })
+                .range(from, to);
 
             if (error) throw error;
             setLeads(data || []);
+            setTotalCount(count || 0);
         } catch (error: any) {
             console.error('Error fetching leads:', error);
+            toast.error("Failed to load leads");
         } finally {
             setLoading(false);
         }
-    };
+    }, [filters, supabase]);
 
     const createLead = async (lead: Partial<Lead>) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            
+
             const insertData = {
                 ...lead,
                 company_name: lead.company_name || lead.company || 'Unknown Company',
                 owner_id: user?.id,
-                status: 'New',
+                status: lead.status || 'New',
                 created_at: new Date().toISOString()
             };
-            
+
             const { data, error } = await supabase
                 .from('leads')
                 .insert([insertData])
@@ -63,11 +93,11 @@ export function useLeads() {
             if (error) throw error;
             setLeads(prev => [data, ...prev]);
             toast.success("Lead created successfully");
-            return true;
+            return data;
         } catch (error: any) {
             console.error('Error creating lead:', error);
             toast.error(error.message || "Failed to create lead");
-            return false;
+            return null;
         }
     };
 
@@ -98,14 +128,13 @@ export function useLeads() {
 
             if (error) throw error;
             setLeads(prev => prev.filter(l => !ids.includes(l.id)));
-            toast.success("Leads deleted");
+            toast.success(`${ids.length} leads deleted`);
         } catch (error: any) {
             console.error('Error deleting leads:', error);
             toast.error("Failed to delete leads");
         }
     };
 
-    // Convert lead to account, contact, and optionally opportunity
     const convertLead = async (leadId: string, options: {
         createAccount?: boolean;
         createContact?: boolean;
@@ -120,16 +149,12 @@ export function useLeads() {
             const { data: { user } } = await supabase.auth.getUser();
             let accountId: string | null = null;
 
-            // Create Account
             if (options.createAccount) {
                 const { data: account, error: accountError } = await supabase
                     .from('accounts')
                     .insert([{
                         name: lead.company_name || lead.company || `${lead.first_name} ${lead.last_name}`,
                         type: 'CUSTOMER',
-                        industry: 'Other',
-                        location: '',
-                        size: 'Small',
                         owner_id: user?.id
                     }])
                     .select()
@@ -139,7 +164,6 @@ export function useLeads() {
                 accountId = account.id;
             }
 
-            // Create Contact
             if (options.createContact) {
                 const { error: contactError } = await supabase
                     .from('contacts')
@@ -154,28 +178,21 @@ export function useLeads() {
                 if (contactError) throw contactError;
             }
 
-            // Create Opportunity
             if (options.createOpportunity && accountId) {
                 const { error: oppError } = await supabase
                     .from('opportunities')
                     .insert([{
                         title: options.opportunityName || `${lead.company_name} - New Opportunity`,
-                        name: options.opportunityName || `${lead.company_name} - New Opportunity`,
                         account_id: accountId,
-                        account_name: lead.company_name,
                         amount: options.opportunityAmount || 0,
                         stage: 'NEW',
-                        probability: 10,
-                        expected_close_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                         owner_id: user?.id
                     }]);
 
                 if (oppError) throw oppError;
             }
 
-            // Update lead status to Qualified
             await updateLead(leadId, { status: 'Qualified' });
-
             toast.success("Lead converted successfully!");
             return true;
         } catch (error: any) {
@@ -187,7 +204,18 @@ export function useLeads() {
 
     useEffect(() => {
         fetchLeads();
-    }, []);
+    }, [fetchLeads]);
 
-    return { leads, loading, createLead, updateLead, deleteLeads, convertLead, refresh: fetchLeads };
+    return {
+        leads,
+        loading,
+        totalCount,
+        filters,
+        setFilters,
+        createLead,
+        updateLead,
+        deleteLeads,
+        convertLead,
+        refresh: fetchLeads
+    };
 }
