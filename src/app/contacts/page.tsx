@@ -15,6 +15,7 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import Link from 'next/link';
 import { Modal } from '@/components/shared/Modal';
 import { useContacts } from '@/hooks/useContacts';
 
@@ -85,9 +86,9 @@ export default function ContactsPage() {
                         <thead className="bg-[#f8f9fb] border-b border-sf-border">
                             <tr>
                                 <th className="p-3 w-12 text-center">
-                                    <input 
-                                        type="checkbox" 
-                                        className="rounded" 
+                                    <input
+                                        type="checkbox"
+                                        className="rounded"
                                         checked={contacts.length > 0 && selectedIds.length === contacts.length}
                                         onChange={() => setSelectedIds(selectedIds.length === contacts.length ? [] : contacts.map(c => c.id))}
                                     />
@@ -112,9 +113,9 @@ export default function ContactsPage() {
                                         )}
                                     >
                                         <td className="p-3 text-center">
-                                            <input 
-                                                type="checkbox" 
-                                                className="rounded" 
+                                            <input
+                                                type="checkbox"
+                                                className="rounded"
                                                 checked={selectedIds.includes(contact.id)}
                                                 onChange={() => toggleSelect(contact.id)}
                                             />
@@ -124,9 +125,9 @@ export default function ContactsPage() {
                                                 <div className="h-8 w-8 rounded-full bg-sf-blue/10 flex items-center justify-center text-sf-blue font-bold text-[10px]">
                                                     {contact.first_name[0]}{contact.last_name[0]}
                                                 </div>
-                                                <span className="font-bold text-sf-blue hover:underline cursor-pointer">
+                                                <Link href={`/contacts/${contact.id}`} className="font-bold text-sf-blue hover:underline cursor-pointer">
                                                     {contact.first_name} {contact.last_name}
-                                                </span>
+                                                </Link>
                                             </div>
                                         </td>
                                         <td className="p-3 text-slate-700 font-medium">{contact.title || '-'}</td>
@@ -204,28 +205,28 @@ function ContactForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess:
                 <h4 className="text-[14px] font-bold text-slate-900 border-b border-sf-border pb-2">Contact Information</h4>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">First Name <span className="text-red-500">*</span></label>
-                    <input 
+                    <input
                         required
                         className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.first_name} 
-                        onChange={e => setFormData({ ...formData, first_name: e.target.value })} 
+                        value={formData.first_name}
+                        onChange={e => setFormData({ ...formData, first_name: e.target.value })}
                     />
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Last Name <span className="text-red-500">*</span></label>
-                    <input 
+                    <input
                         required
                         className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.last_name} 
-                        onChange={e => setFormData({ ...formData, last_name: e.target.value })} 
+                        value={formData.last_name}
+                        onChange={e => setFormData({ ...formData, last_name: e.target.value })}
                     />
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Title</label>
-                    <input 
+                    <input
                         className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.title} 
-                        onChange={e => setFormData({ ...formData, title: e.target.value })} 
+                        value={formData.title}
+                        onChange={e => setFormData({ ...formData, title: e.target.value })}
                     />
                 </div>
             </div>
@@ -233,27 +234,27 @@ function ContactForm({ onCancel, onSuccess }: { onCancel: () => void, onSuccess:
                 <h4 className="text-[14px] font-bold text-slate-900 border-b border-sf-border pb-2">Contact Details</h4>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Email</label>
-                    <input 
+                    <input
                         type="email"
                         className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.email} 
-                        onChange={e => setFormData({ ...formData, email: e.target.value })} 
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
                     />
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Phone</label>
-                    <input 
+                    <input
                         className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.phone} 
-                        onChange={e => setFormData({ ...formData, phone: e.target.value })} 
+                        value={formData.phone}
+                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
                     />
                 </div>
                 <div className="space-y-1.5">
                     <label className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">Mobile</label>
-                    <input 
+                    <input
                         className="w-full bg-white border border-sf-border rounded h-9 px-3 text-[13px] outline-none focus:border-sf-blue transition-all"
-                        value={formData.mobile} 
-                        onChange={e => setFormData({ ...formData, mobile: e.target.value })} 
+                        value={formData.mobile}
+                        onChange={e => setFormData({ ...formData, mobile: e.target.value })}
                     />
                 </div>
             </div>

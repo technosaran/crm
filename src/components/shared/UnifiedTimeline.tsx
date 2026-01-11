@@ -108,7 +108,7 @@ export const UnifiedTimeline = ({ entityType, entityId }: UnifiedTimelineProps) 
                             <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                                 <User size={10} className="text-slate-400" />
                                 <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">
-                                    {item.data.user_profile?.name || 'System'}
+                                    {item.data.user_profile?.full_name || 'System'}
                                 </span>
                             </div>
                         </div>

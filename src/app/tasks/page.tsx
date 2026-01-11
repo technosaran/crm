@@ -19,14 +19,14 @@ import { sortTasks, filterTasks, TaskSortField, TaskFilter } from '@/lib/taskUti
 
 export default function TasksPage() {
     const { tasks, loading, createTask, updateTask, deleteTasks, completeTask, refresh } = useTasks();
-    
+
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingTask, setEditingTask] = useState<typeof tasks[0] | null>(null);
-    
+    const [editingTask, setEditingTask] = useState<any>(null);
+
     // Selection state
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
-    
+
     // Sort and filter state
     const [sortField, setSortField] = useState<TaskSortField>('due_date');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -36,19 +36,19 @@ export default function TasksPage() {
     // Process tasks with filtering, searching, and sorting
     const processedTasks = useMemo(() => {
         let result = filterTasks(tasks, filter);
-        
+
         // Apply search
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
-            result = result.filter(task => 
+            result = result.filter(task =>
                 task.subject.toLowerCase().includes(query) ||
                 (task.description?.toLowerCase().includes(query))
             );
         }
-        
+
         // Apply sorting
         result = sortTasks(result, sortField, sortDirection);
-        
+
         return result;
     }, [tasks, filter, searchQuery, sortField, sortDirection]);
 
@@ -72,7 +72,7 @@ export default function TasksPage() {
         }
     };
 
-    const handleTaskClick = (task: typeof tasks[0]) => {
+    const handleTaskClick = (task: any) => {
         setEditingTask(task);
         setIsModalOpen(true);
     };
@@ -82,7 +82,7 @@ export default function TasksPage() {
         setIsModalOpen(true);
     };
 
-    const handleSubmit = async (data: Partial<typeof tasks[0]>) => {
+    const handleSubmit = async (data: Partial<any>) => {
         if (editingTask) {
             return await updateTask(editingTask.id, data);
         } else {
@@ -114,7 +114,7 @@ export default function TasksPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button 
+                        <button
                             onClick={refresh}
                             className="sf-btn-neutral flex items-center gap-2"
                             disabled={loading}
@@ -124,7 +124,7 @@ export default function TasksPage() {
                         <button className="sf-btn-neutral flex items-center gap-2">
                             <Calendar size={14} /> View Calendar
                         </button>
-                        <button 
+                        <button
                             onClick={handleNewTask}
                             className="sf-btn-primary flex items-center gap-2"
                         >
@@ -141,11 +141,11 @@ export default function TasksPage() {
                     <div className="p-4 border-b border-sf-border bg-white flex items-center gap-4">
                         <div className="relative flex-1 max-w-md">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                            <input 
-                                placeholder="Search tasks..." 
+                            <input
+                                placeholder="Search tasks..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-white border border-sf-border rounded h-9 pl-10 pr-4 text-[13px] w-full focus:border-sf-blue outline-none transition-all" 
+                                className="bg-white border border-sf-border rounded h-9 pl-10 pr-4 text-[13px] w-full focus:border-sf-blue outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -218,7 +218,7 @@ export default function TasksPage() {
                                         </span>
                                     </div>
                                     <div className="w-full bg-sf-gray rounded-full h-2">
-                                        <div 
+                                        <div
                                             className="bg-emerald-500 h-2 rounded-full transition-all"
                                             style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%` }}
                                         />

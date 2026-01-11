@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Case } from '@/hooks/useCases';
+import Link from 'next/link';
 import { PriorityBadge } from '@/components/shared/PriorityBadge';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { CaseSortField, CaseStatusFilter, CasePriorityFilter } from '@/lib/caseUtils';
@@ -228,8 +229,8 @@ export function CaseTable({
                       selectedIds.includes(caseItem.id)
                         ? 'bg-sf-blue/5'
                         : isCritical
-                        ? 'bg-red-50/50 hover:bg-red-50'
-                        : 'hover:bg-sf-gray/40'
+                          ? 'bg-red-50/50 hover:bg-red-50'
+                          : 'hover:bg-sf-gray/40'
                     )}
                     onClick={() => onCaseClick(caseItem)}
                   >
@@ -248,9 +249,9 @@ export function CaseTable({
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-800 hover:text-sf-blue hover:underline max-w-[250px] truncate">
+                        <Link href={`/cases/${caseItem.id}`} className="font-bold text-slate-800 hover:text-sf-blue hover:underline max-w-[250px] truncate">
                           {caseItem.subject}
-                        </span>
+                        </Link>
                         {isEscalated && (
                           <span className="flex items-center gap-1 text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
                             <AlertTriangle size={10} />

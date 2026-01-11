@@ -8,8 +8,7 @@ export type OpportunityStage = 'NEW' | 'QUALIFICATION' | 'NEEDS_ANALYSIS' | 'VAL
 
 export interface Opportunity {
     id: string;
-    title: string;
-    name: string | null;
+    name: string;
     description: string | null;
     account_id: string;
     account_name: string | null;
@@ -40,12 +39,7 @@ export function useOpportunities() {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            // Map title to name for UI consistency
-            const mappedData = (data || []).map(opp => ({
-                ...opp,
-                name: opp.title || opp.name
-            }));
-            setOpportunities(mappedData);
+            setOpportunities(data || []);
         } catch (error: any) {
             console.error('Error fetching opportunities:', error);
         } finally {
@@ -56,11 +50,11 @@ export function useOpportunities() {
     const createOpportunity = async (opportunity: Partial<Opportunity>) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            
+
             // Map name to title for database compatibility
             const insertData = {
                 ...opportunity,
-                title: opportunity.name || opportunity.title || 'Untitled Opportunity',
+                name: opportunity.name || 'Untitled Opportunity',
                 owner_id: user?.id,
                 stage: opportunity.stage || 'NEW',
                 probability: opportunity.probability || 10,
@@ -68,7 +62,7 @@ export function useOpportunities() {
                 expected_close_date: opportunity.expected_close_date || new Date().toISOString().split('T')[0],
                 created_at: new Date().toISOString()
             };
-            
+
             const { data, error } = await supabase
                 .from('opportunities')
                 .insert([insertData])
@@ -76,9 +70,7 @@ export function useOpportunities() {
                 .single();
 
             if (error) throw error;
-            // Map title back to name for UI consistency
-            const mappedData = { ...data, name: data.title || data.name };
-            setOpportunities(prev => [mappedData, ...prev]);
+            setOpportunities(prev => [data, ...prev]);
             toast.success("Opportunity created successfully");
             return true;
         } catch (error: any) {
@@ -147,17 +139,45 @@ export function useOpportunities() {
         }
     };
 
+    const getOpportunityById = async (id: string) => {
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('opportunities')
+                .select(`
+                    *,
+                    accounts (name),
+                    user_profiles!owner_id (full_name, email)
+                `)
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+            return {
+                ...data,
+                name: data.name || 'Untitled Opportunity',
+                account_name: data.accounts?.name
+            };
+        } catch (error: any) {
+            console.error('Error fetching opportunity:', error);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchOpportunities();
     }, []);
 
-    return { 
-        opportunities, 
-        loading, 
-        createOpportunity, 
-        updateOpportunity, 
+    return {
+        opportunities,
+        loading,
+        createOpportunity,
+        updateOpportunity,
         updateStage,
-        deleteOpportunities, 
-        refresh: fetchOpportunities 
+        deleteOpportunities,
+        getOpportunityById,
+        refresh: fetchOpportunities
     };
 }

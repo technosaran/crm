@@ -15,6 +15,8 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGlobalStore } from '@/store/useGlobalStore';
 import { toast } from 'sonner';
+import { UnifiedTimeline } from '@/components/shared/UnifiedTimeline';
+import { CommentSection } from '@/components/shared/CommentSection';
 
 const stages = [
     { id: 'new', title: 'New', status: 'complete' },
@@ -25,25 +27,29 @@ const stages = [
     { id: 'closed', title: 'Closed', status: 'incomplete' },
 ];
 
-interface TimelineItem {
-    id: number;
-    type: string;
-    title: string;
-    date: string;
-    user: string;
-    icon: LucideIcon;
-    iconBg: string;
+interface SalesPipelineProps {
+    opportunity: any;
+    onUpdate?: () => void;
 }
 
-const timeline: TimelineItem[] = [];
-
-export function SalesPipeline() {
+export function SalesPipeline({ opportunity, onUpdate }: SalesPipelineProps) {
     const { locale, currency } = useGlobalStore();
-    const [activeTab, setActiveTab] = useState('Activity');
+    const [activeTab, setActiveTab] = useState('Details');
+    const [activityTab, setActivityTab] = useState<'Activity' | 'Chatter'>('Activity');
 
-    const handleMarkComplete = () => {
-        toast.success('Opportunity stage updated successfully!');
+    const handleMarkComplete = async () => {
+        toast.success('Opportunity stage updated!');
+        if (onUpdate) onUpdate();
     };
+
+    if (!opportunity) return null;
+
+    // Map stages to Salesforce status style
+    const currentStageIndex = stages.findIndex(s => s.title.toUpperCase() === opportunity.stage?.split('_')[0].toUpperCase()) || 0;
+    const displayStages = stages.map((s, i) => ({
+        ...s,
+        status: i < currentStageIndex ? 'complete' : i === currentStageIndex ? 'current' : 'incomplete'
+    }));
 
     return (
         <div className="space-y-4">
@@ -58,7 +64,7 @@ export function SalesPipeline() {
                             <nav className="text-[11px] text-slate-500 flex items-center gap-1 font-bold uppercase tracking-wider">
                                 Opportunities <ChevronRight size={10} />
                             </nav>
-                            <h1 className="text-[20px] font-bold leading-tight text-slate-900">Opportunity Name</h1>
+                            <h1 className="text-[20px] font-bold leading-tight text-slate-900">{opportunity.name || 'Untitled Opportunity'}</h1>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -70,7 +76,7 @@ export function SalesPipeline() {
 
                 {/* The ICONIC Salesforce Path Component */}
                 <div className="flex items-center w-full overflow-hidden rounded-full bg-sf-gray h-9 border border-sf-border p-0.5">
-                    {stages.map((stage, idx) => (
+                    {displayStages.map((stage, idx) => (
                         <div
                             key={stage.id}
                             className={cn(
@@ -116,23 +122,23 @@ export function SalesPipeline() {
 
                         <div className="p-6">
                             <AnimatePresence mode="wait">
-                                {activeTab === 'Details' || activeTab === 'Activity' ? (
+                                {activeTab === 'Details' ? (
                                     <motion.div
                                         key="details"
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="grid grid-cols-2 gap-y-8"
+                                        className="grid grid-cols-1 sm:grid-cols-2 gap-y-8"
                                     >
                                         {[
-                                            { label: 'Amount', value: formatCurrency(0, currency, locale) },
-                                            { label: 'Close Date', value: '---' },
-                                            { label: 'Account Name', value: '---' },
-                                            { label: 'Opportunity Owner', value: '---' },
-                                            { label: 'Probability', value: '0%' },
-                                            { label: 'Stage', value: 'New' },
-                                            { label: 'Lead Source', value: '---' },
-                                            { label: 'Primary Contact', value: '---' },
+                                            { label: 'Amount', value: formatCurrency(opportunity.amount || 0, currency, locale) },
+                                            { label: 'Expected Close Date', value: opportunity.expected_close_date ? new Date(opportunity.expected_close_date).toLocaleDateString() : 'N/A' },
+                                            { label: 'Account Name', value: opportunity.accounts?.name || opportunity.account_name || 'Not Set' },
+                                            { label: 'Opportunity Owner', value: opportunity.owner?.full_name || 'Unassigned' },
+                                            { label: 'Probability', value: `${opportunity.probability || 0}%` },
+                                            { label: 'Stage', value: (opportunity.stage || '').replace('_', ' ') },
+                                            { label: 'Lead Source', value: opportunity.lead_source || 'Unknown' },
+                                            { label: 'Created At', value: opportunity.created_at ? new Date(opportunity.created_at).toLocaleDateString() : 'N/A' },
                                         ].map((field, i) => (
                                             <div key={i} className="group border-b border-transparent hover:border-sf-border pb-1 pr-4 transition-all">
                                                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide mb-1 flex items-center justify-between">
@@ -168,62 +174,44 @@ export function SalesPipeline() {
 
                 {/* Right Column: Activity Timeline */}
                 <div className="space-y-4">
-                    <div className="bg-white border border-sf-border rounded-[4px] shadow-sm">
+                    <div className="bg-white border border-sf-border rounded-[4px] shadow-sm flex flex-col min-h-[500px]">
                         <div className="flex border-b border-sf-border bg-sf-gray/30">
-                            <button className="flex-1 py-3 text-[13px] font-bold border-b-2 border-sf-blue text-sf-blue bg-white">Activity</button>
-                            <button className="flex-1 py-3 text-[13px] font-medium text-slate-500 hover:text-sf-blue">Chatter</button>
+                            <button
+                                onClick={() => setActivityTab('Activity')}
+                                className={cn(
+                                    "flex-1 py-3 text-[13px] font-bold transition-all",
+                                    activityTab === 'Activity' ? "border-b-2 border-sf-blue text-sf-blue bg-white" : "text-slate-500 hover:text-sf-blue"
+                                )}
+                            >
+                                Activity
+                            </button>
+                            <button
+                                onClick={() => setActivityTab('Chatter')}
+                                className={cn(
+                                    "flex-1 py-3 text-[13px] font-bold transition-all",
+                                    activityTab === 'Chatter' ? "border-b-2 border-sf-blue text-sf-blue bg-white" : "text-slate-500 hover:text-sf-blue"
+                                )}
+                            >
+                                Chatter
+                            </button>
                         </div>
 
-                        <div className="p-4 space-y-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <button className="p-2 rounded-full border border-sf-border text-sf-blue hover:bg-sf-gray">
-                                    <History size={16} />
-                                </button>
-                                <button className="flex-1 bg-white border border-sf-border rounded-full h-9 flex items-center px-4 text-[12px] text-slate-500 hover:bg-sf-gray transition-all cursor-text">
-                                    Log a call, task, or meeting...
-                                </button>
-                            </div>
-
-                            <div className="relative space-y-8 before:absolute before:inset-0 before:ml-4 before:-z-10 before:h-full before:w-0.5 before:bg-sf-border">
-                                {timeline.length > 0 ? (
-                                    timeline.map((item, idx) => (
-                                        <motion.div
-                                            key={item.id}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: idx * 0.1 }}
-                                            className="relative flex items-start gap-4"
-                                        >
-                                            <div className={cn(
-                                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white shadow-sm ring-4 ring-white",
-                                                item.iconBg
-                                            )}>
-                                                <item.icon size={16} />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <h4 className="text-[13px] font-bold text-sf-blue hover:underline cursor-pointer truncate">
-                                                        {item.title}
-                                                    </h4>
-                                                    <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">{item.date}</span>
-                                                </div>
-                                                <p className="text-[12px] text-slate-600 line-clamp-1">
-                                                    Performed by <span className="font-semibold">{item.user}</span>
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-8">
-                                        <p className="text-[13px] font-medium text-slate-500 italic">No past activity</p>
-                                        <p className="text-[11px] text-slate-400 mt-1">Updates will appear here dynamically</p>
+                        <div className="p-4 flex-1">
+                            {activityTab === 'Chatter' ? (
+                                <CommentSection entityType="OPPORTUNITY" entityId={opportunity.id} />
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <button className="p-2 rounded-full border border-sf-border text-sf-blue hover:bg-sf-gray">
+                                            <History size={16} />
+                                        </button>
+                                        <button className="flex-1 bg-white border border-sf-border rounded-full h-9 flex items-center px-4 text-[12px] text-slate-500 hover:bg-sf-gray transition-all cursor-text">
+                                            Log a call, task, or meeting...
+                                        </button>
                                     </div>
-                                )}
-                            </div>
-
-                            <button className="w-full mt-4 text-[12px] font-bold text-sf-blue hover:underline py-2 border-t border-sf-border">
-                                View Full History
-                            </button>
+                                    <UnifiedTimeline entityType="OPPORTUNITY" entityId={opportunity.id} />
+                                </div>
+                            )}
                         </div>
                     </div>
 

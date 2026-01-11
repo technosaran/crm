@@ -1,253 +1,260 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useLeads, Lead } from '@/hooks/useLeads';
-import { useCustomFields } from '@/hooks/useCustomFields';
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
-    History,
-    MessageSquare,
-    Info,
     ChevronLeft,
-    Edit3,
     MoreVertical,
-    Briefcase,
     Mail,
     Phone,
     Globe,
-    Tag
-} from 'lucide-react';
-import { UnifiedTimeline } from '@/components/shared/UnifiedTimeline';
-import { CommentSection } from '@/components/shared/CommentSection';
-import { DynamicForm } from '@/components/shared/DynamicForm';
-import { CustomFieldManager } from '@/components/admin/CustomFieldManager';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+    MapPin,
+    TrendingUp,
+    Calendar,
+    User,
+    Building2,
+    Clock,
+    Tag,
+    Share2,
+    RefreshCw
+} from "lucide-react";
+import { createClient } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { UnifiedTimeline } from "@/components/shared/UnifiedTimeline";
+import { CommentSection } from "@/components/shared/CommentSection";
+import { useGlobalStore } from "@/store/useGlobalStore";
+import { toast } from "sonner";
 
-export default function LeadDetailPage() {
+export default function LeadDetail() {
     const { id } = useParams() as { id: string };
     const router = useRouter();
-    const { leads, loading: loadingLeads } = useLeads();
-    const { fields, loading: loadingFields, getEntityValues, saveValues } = useCustomFields('LEAD');
-
-    const [lead, setLead] = useState<Lead | null>(null);
-    const [activeTab, setActiveTab] = useState<'DETAILS' | 'TIMELINE' | 'COLLABORATION' | 'CUSTOM'>('TIMELINE');
-    const [customValues, setCustomValues] = useState<Record<string, any>>({});
-    const [isSaving, setIsSaving] = useState(false);
+    const [lead, setLead] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('TIMELINE');
+    const supabase = createClient();
 
     useEffect(() => {
-        const foundLead = leads.find(l => l.id === id);
-        if (foundLead) {
-            setLead(foundLead);
-            getEntityValues(id).then(setCustomValues);
+        async function loadLead() {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('leads')
+                .select(`
+                    *,
+                    owner:user_profiles!owner_id (full_name)
+                `)
+                .eq('id', id)
+                .single();
+
+            if (data) setLead(data);
+            setLoading(false);
         }
-    }, [leads, id]);
+        if (id) loadLead();
+    }, [id, supabase]);
 
-    const handleSaveCustom = async () => {
-        setIsSaving(true);
-        await saveValues(id, customValues);
-        setIsSaving(false);
-    };
-
-    if (loadingLeads || !lead) {
+    if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <div className="h-10 w-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-400">
+                <RefreshCw size={24} className="animate-spin mb-2" />
+                <p className="text-sm font-bold">Retrieving lead intelligence...</p>
             </div>
         );
     }
 
+    if (!lead) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                <h2 className="text-xl font-bold text-slate-800">Lead Intelligence Not Found</h2>
+                <Link href="/leads" className="text-indigo-600 hover:underline mt-2 font-bold">Return to Leads Database</Link>
+            </div>
+        );
+    }
+
+    const tabs = [
+        { id: 'TIMELINE', label: 'Activity Feed' },
+        { id: 'COLLABORATION', label: 'Collaboration' },
+        { id: 'DETAILS', label: 'Full Profile' },
+    ];
+
     return (
-        <div className="space-y-6 pb-20">
-            {/* Premium Header */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex items-start gap-6">
-                        <button
-                            onClick={() => router.back()}
-                            className="mt-1 p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-slate-500"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
+        <div className="flex flex-col gap-6 pb-12">
+            {/* Header Section */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="bg-orange-500 h-16 w-16 shadow-xl shadow-orange-500/20 rounded-2xl flex items-center justify-center text-white shrink-0">
+                            <User size={32} />
+                        </div>
                         <div>
                             <div className="flex items-center gap-3 mb-2">
-                                <span className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">Lead Record</span>
-                                <span className={cn(
-                                    "px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
-                                    lead.status === 'Qualified' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                                )}>
-                                    {lead.status}
+                                <button
+                                    onClick={() => router.back()}
+                                    className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all text-slate-400"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span className="bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">Lead Profile</span>
+                                <span className="text-slate-300 dark:text-slate-700">•</span>
+                                <span className="text-slate-500 text-[11px] font-bold uppercase tracking-widest flex items-center gap-1">
+                                    Status: <span className="text-slate-900 dark:text-white">{lead.status}</span>
                                 </span>
-                                <span className="text-slate-300">•</span>
-                                <span className="text-[11px] font-bold text-slate-400">Created {new Date(lead.created_at).toLocaleDateString()}</span>
                             </div>
-                            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight font-outfit">
+                            <h1 className="text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight font-outfit">
                                 {lead.first_name} {lead.last_name}
                             </h1>
-                            <div className="flex flex-wrap items-center gap-6 mt-4">
-                                <div className="flex items-center gap-2 text-slate-500">
-                                    <Briefcase size={16} className="text-indigo-500" />
-                                    <span className="text-sm font-bold">{lead.company_name || lead.company}</span>
+                            <div className="flex items-center gap-4 mt-2">
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                                    <Building2 size={14} className="text-slate-400" />
+                                    {lead.company_name}
                                 </div>
-                                <div className="flex items-center gap-2 text-slate-500">
-                                    <Mail size={16} className="text-indigo-500" />
-                                    <span className="text-sm font-bold">{lead.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-slate-500">
-                                    <Phone size={16} className="text-indigo-500" />
-                                    <span className="text-sm font-bold">{lead.phone || 'N/A'}</span>
+                                <div className="w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                                    <MapPin size={14} className="text-slate-400" />
+                                    {lead.city || 'Location unset'}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button className="h-12 px-6 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2">
-                            <Edit3 size={16} /> Edit Profile
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <button className="flex-1 md:flex-initial h-11 px-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                            <Share2 size={16} />
+                            Share
                         </button>
-                        <button className="h-12 w-12 flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-500">
-                            <MoreVertical size={20} />
+                        <button className="flex-1 md:flex-initial sf-btn-primary h-11 px-8 shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">
+                            <TrendingUp size={16} />
+                            Convert Lead
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Details & Custom Fields */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Tabs */}
-                    <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800 px-4">
-                        {[
-                            { id: 'TIMELINE', label: 'Timeline', icon: History },
-                            { id: 'COLLABORATION', label: 'Collaboration', icon: MessageSquare },
-                            { id: 'DETAILS', label: 'Standard Info', icon: Info },
-                            { id: 'CUSTOM', label: 'Advanced Data', icon: Tag },
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
-                                className={cn(
-                                    "flex items-center gap-2 py-4 text-xs font-black uppercase tracking-widest transition-all relative",
-                                    activeTab === tab.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
-                                )}
-                            >
-                                <tab.icon size={16} />
-                                {tab.label}
-                                {activeTab === tab.id && (
-                                    <motion.div layoutId="underline" className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full" />
-                                )}
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="min-h-[500px]">
-                        {activeTab === 'TIMELINE' && (
-                            <UnifiedTimeline entityType="LEAD" entityId={id} />
-                        )}
-
-                        {activeTab === 'COLLABORATION' && (
-                            <CommentSection entityType="LEAD" entityId={id} />
-                        )}
-
-                        {activeTab === 'DETAILS' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-[32px] p-8 border border-slate-100 dark:border-slate-800">
-                                <h3 className="text-xl font-black text-slate-800 dark:text-white mb-8 flex items-center gap-3">
-                                    <div className="h-2 w-8 bg-indigo-500 rounded-full" />
-                                    Primary Attributes
-                                </h3>
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="space-y-1">
-                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Source</p>
-                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{lead.source}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Industry</p>
-                                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Technology</p>
-                                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Information Column (4 cols) */}
+                <div className="lg:col-span-4 space-y-6">
+                    {/* Quick Stats */}
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm overflow-hidden relative">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Discovery Data</h3>
+                        <div className="space-y-6">
+                            <div className="flex items-start gap-4">
+                                <div className="h-10 w-10 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                                    <Mail size={18} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Primary Email</p>
+                                    <p className="font-bold text-slate-900 dark:text-white break-all">{lead.email}</p>
                                 </div>
                             </div>
-                        )}
-
-                        {activeTab === 'CUSTOM' && (
-                            <div className="space-y-8">
-                                <div className="bg-white dark:bg-slate-900 rounded-[32px] p-8 border border-slate-100 dark:border-slate-800">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-3">
-                                            <div className="h-2 w-8 bg-indigo-500 rounded-full" />
-                                            Extended Attributes
-                                        </h3>
-                                        <button
-                                            onClick={handleSaveCustom}
-                                            disabled={isSaving}
-                                            className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
-                                        >
-                                            {isSaving ? 'Saving...' : 'Save Attributes'}
-                                        </button>
-                                    </div>
-                                    <DynamicForm
-                                        fields={fields}
-                                        values={customValues}
-                                        onChange={(fieldId, val) => setCustomValues({ ...customValues, [fieldId]: val })}
-                                    />
-                                    {fields.length === 0 && (
-                                        <div className="text-center py-12 text-slate-400 font-bold">
-                                            No custom fields defined.
-                                            <button onClick={() => setActiveTab('CUSTOM')} className="text-indigo-600 hover:underline ml-1">Configure now</button>
-                                        </div>
-                                    )}
+                            <div className="flex items-start gap-4">
+                                <div className="h-10 w-10 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+                                    <Phone size={18} />
                                 </div>
-
-                                <CustomFieldManager entityType="LEAD" />
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Direct Phone</p>
+                                    <p className="font-bold text-slate-900 dark:text-white">{lead.phone || 'N/A'}</p>
+                                </div>
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Right Column: Predictive Insights */}
-                <div className="space-y-8">
-                    <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[32px] p-8 text-white shadow-2xl shadow-indigo-500/30">
-                        <h3 className="text-lg font-black uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <Globe size={18} /> Zenith Score
-                        </h3>
-                        <div className="flex items-end gap-2">
-                            <span className="text-6xl font-black font-outfit">84</span>
-                            <span className="text-indigo-200 text-lg font-bold mb-2">/100</span>
-                        </div>
-                        <p className="text-indigo-100 text-xs mt-4 font-medium leading-relaxed">
-                            Based on email interactions and lead source, this record has a <span className="text-white font-black underline">high probability</span> of converting to an opportunity.
-                        </p>
-                        <div className="mt-8 space-y-3">
-                            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                                <div className="h-full bg-white w-[84%]" />
+                            <div className="flex items-start gap-4">
+                                <div className="h-10 w-10 bg-amber-50 dark:bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                                    <Globe size={18} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Lead Source</p>
+                                    <p className="font-bold text-slate-900 dark:text-white uppercase tracking-tighter">{lead.source}</p>
+                                </div>
                             </div>
-                            <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest">Qualification Progress</p>
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-[32px] p-8 border border-slate-100 dark:border-slate-800">
-                        <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest mb-6 border-l-2 border-indigo-500 pl-4">Next Recommended Steps</h3>
+                    {/* Metadata Card */}
+                    <div className="bg-slate-900 rounded-3xl p-6 text-white shadow-xl shadow-slate-900/20">
+                        <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">System Meta</h3>
                         <div className="space-y-4">
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-start gap-4">
-                                <div className="h-8 w-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
-                                    <Mail size={16} />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100">Send introductory deck</p>
-                                    <p className="text-[10px] text-slate-500 mt-1">AI detected interest in Enterprise features</p>
-                                </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500">Managed By</span>
+                                <span className="text-xs font-black uppercase text-indigo-400">{lead.owner?.full_name || 'Unassigned'}</span>
                             </div>
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-start gap-4">
-                                <div className="h-8 w-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
-                                    <Phone size={16} />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100">Follow up on voicemail</p>
-                                    <p className="text-[10px] text-slate-500 mt-1">Best time: Today before 4 PM</p>
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500">Record Created</span>
+                                <span className="text-xs font-bold">{new Date(lead.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500">Lead Strength</span>
+                                <div className="flex gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <div key={s} className={cn("h-1 w-3 rounded-full", s <= 4 ? "bg-amber-500" : "bg-slate-700")} />
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Content Area Column (8 cols) */}
+                <div className="lg:col-span-8 space-y-6">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+                        {/* Custom Tab Navigation */}
+                        <div className="flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={cn(
+                                        "px-6 py-5 text-[11px] font-black uppercase tracking-widest transition-all relative",
+                                        activeTab === tab.id
+                                            ? "text-indigo-600 dark:text-indigo-400"
+                                            : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                    )}
+                                >
+                                    {tab.label}
+                                    {activeTab === tab.id && (
+                                        <div className="absolute bottom-0 left-6 right-6 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-full" />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="p-6 flex-1">
+                            {activeTab === 'TIMELINE' && (
+                                <UnifiedTimeline entityType="LEAD" entityId={lead.id} />
+                            )}
+                            {activeTab === 'COLLABORATION' && (
+                                <CommentSection entityType="LEAD" entityId={lead.id} />
+                            )}
+                            {activeTab === 'DETAILS' && (
+                                <div className="grid grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                    <div className="space-y-4">
+                                        <h4 className="text-[11px] font-black text-indigo-500 uppercase tracking-widest">Contact Details</h4>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <DetailItem label="Full Name" value={`${lead.first_name} ${lead.last_name}`} />
+                                            <DetailItem label="Job Title" value={lead.title || 'Executive'} />
+                                            <DetailItem label="Department" value={lead.department || 'N/A'} />
+                                            <DetailItem label="Website" value={lead.website || 'N/A'} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <h4 className="text-[11px] font-black text-indigo-500 uppercase tracking-widest">Business Info</h4>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <DetailItem label="Entity Name" value={lead.company_name} />
+                                            <DetailItem label="Industry" value={lead.industry || 'Unknown'} />
+                                            <DetailItem label="Team Size" value={lead.employee_count || 'Unset'} />
+                                            <DetailItem label="Revenue Range" value={lead.annual_revenue || 'Confidential'} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+    );
+}
+
+function DetailItem({ label, value }: { label: string, value: any }) {
+    return (
+        <div className="group transition-all">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300">{value}</p>
         </div>
     );
 }

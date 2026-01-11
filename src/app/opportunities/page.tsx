@@ -1,6 +1,7 @@
 "use client";
 
 import { KanbanView } from "@/components/crm/KanbanView";
+import { OpportunityListView } from "@/components/crm/OpportunityListView";
 import { OpportunityModal } from "@/components/crm/OpportunityModal";
 import { useOpportunities, OpportunityStage } from "@/hooks/useOpportunities";
 import { motion } from "framer-motion";
@@ -209,9 +210,11 @@ export default function OpportunitiesPage() {
                     onAddClick={handleAddClick}
                 />
             ) : (
-                <div className="bg-white border border-sf-border rounded-[4px] p-12 text-center text-slate-400 font-medium italic">
-                    Pipeline List View coming in next patch...
-                </div>
+                <OpportunityListView
+                    opportunities={filteredOpportunities}
+                    loading={loading}
+                    onOpportunityClick={handleOpportunityClick}
+                />
             )}
 
             {/* Opportunity Modal */}

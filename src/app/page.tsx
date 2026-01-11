@@ -38,16 +38,16 @@ export default function Dashboard() {
     const wonOpps = opportunities.filter(o => o.stage === 'CLOSED_WON');
     const pipeline = openOpps.reduce((sum, o) => sum + (o.amount || 0), 0);
     const wonAmount = wonOpps.reduce((sum, o) => sum + (o.amount || 0), 0);
-    
+
     const openTasks = tasks.filter(t => t.status !== 'COMPLETED');
     const overdueTasks = tasks.filter(t => {
       if (!t.due_date || t.status === 'COMPLETED') return false;
       return new Date(t.due_date) < new Date();
     });
-    
+
     const openCases = cases.filter(c => !['CLOSED', 'RESOLVED'].includes(c.status));
     const criticalCases = cases.filter(c => c.priority === 'CRITICAL' && !['CLOSED', 'RESOLVED'].includes(c.status));
-    
+
     return {
       pipeline,
       wonAmount,
@@ -236,7 +236,7 @@ export default function Dashboard() {
                   {recentOpportunities.map((opp) => (
                     <Link
                       key={opp.id}
-                      href="/opportunities"
+                      href={`/opportunities/${opp.id}`}
                       className="flex items-center justify-between p-4 bg-white border border-sf-border rounded-lg hover:border-sf-blue/30 hover:shadow-sm transition-all group"
                     >
                       <div className="flex items-center gap-4">
@@ -250,7 +250,7 @@ export default function Dashboard() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-emerald-600">{formatCurrency(opp.amount || 0, currency, locale)}</p>
-                        <p className="text-[10px] text-slate-400 uppercase">{opp.stage.replace('_', ' ')}</p>
+                        <p className="text-[10px] text-slate-400 uppercase">{(opp.stage || '').replace('_', ' ')}</p>
                       </div>
                     </Link>
                   ))}
@@ -355,8 +355,8 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-1.5">
-                    <div 
-                      className="bg-emerald-500 h-1.5 rounded-full transition-all" 
+                    <div
+                      className="bg-emerald-500 h-1.5 rounded-full transition-all"
                       style={{ width: `${Math.min(stats.openOpps * 10, 100)}%` }}
                     />
                   </div>
@@ -369,7 +369,7 @@ export default function Dashboard() {
                   <div className="flex justify-between items-center text-xs font-medium text-slate-500">
                     <span>Task Completion</span>
                     <span className="text-indigo-600 font-bold">
-                      {tasks.length > 0 
+                      {tasks.length > 0
                         ? `${Math.round((tasks.filter(t => t.status === 'COMPLETED').length / tasks.length) * 100)}%`
                         : '0%'}
                     </span>
@@ -379,7 +379,7 @@ export default function Dashboard() {
                   </p>
                 </div>
 
-                <Link 
+                <Link
                   href="/analytics"
                   className="w-full py-3 bg-indigo-50 border border-indigo-100 rounded-xl text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-all flex items-center justify-center gap-2"
                 >

@@ -94,14 +94,14 @@ export class SearchEngine {
     private static async searchOpportunities(q: string): Promise<SearchResult[]> {
         const { data } = await this.supabase
             .from('opportunities')
-            .select('id, title, name')
-            .or(`title.ilike.${q},name.ilike.${q}`)
+            .select('id, name')
+            .ilike('name', q)
             .limit(3);
 
         return (data || []).map(item => ({
             id: item.id,
             type: 'opportunity',
-            title: item.title || item.name || 'Untitled Opportunity',
+            title: item.name || 'Untitled Opportunity',
             subtitle: 'Opportunity',
             href: `/opportunities/${item.id}`,
         }));

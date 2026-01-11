@@ -148,7 +148,10 @@ export function useLeads(initialFilters: Partial<LeadFilters> = {}) {
 
             const { data: { user } } = await supabase.auth.getUser();
             let accountId: string | null = null;
+            let contactId: string | null = null;
+            let opportunityId: string | null = null;
 
+            // 1. Create or Map Account
             if (options.createAccount) {
                 const { data: account, error: accountError } = await supabase
                     .from('accounts')
@@ -164,35 +167,77 @@ export function useLeads(initialFilters: Partial<LeadFilters> = {}) {
                 accountId = account.id;
             }
 
+            // 2. Create Contact and link to Account
             if (options.createContact) {
-                const { error: contactError } = await supabase
+                const { data: contact, error: contactError } = await supabase
                     .from('contacts')
                     .insert([{
                         first_name: lead.first_name,
                         last_name: lead.last_name,
                         email: lead.email,
                         phone: lead.phone,
+                        account_id: accountId, // LINKED
                         owner_id: user?.id
-                    }]);
+                    }])
+                    .select()
+                    .single();
 
                 if (contactError) throw contactError;
+                contactId = contact.id;
             }
 
+            // 3. Create Opportunity and link to Account & Contact
             if (options.createOpportunity && accountId) {
-                const { error: oppError } = await supabase
+                const { data: opportunity, error: oppError } = await supabase
                     .from('opportunities')
                     .insert([{
-                        title: options.opportunityName || `${lead.company_name} - New Opportunity`,
+                        name: options.opportunityName || `${lead.company_name} - New Opportunity`,
                         account_id: accountId,
+                        contact_id: contactId, // LINKED
                         amount: options.opportunityAmount || 0,
                         stage: 'NEW',
                         owner_id: user?.id
-                    }]);
+                    }])
+                    .select()
+                    .single();
 
                 if (oppError) throw oppError;
+                opportunityId = opportunity.id;
+
+                // PRO-LEVEL: Automated Email notification
+                if (user?.email) {
+                    import('@/lib/email/emailService').then(({ emailService }) => {
+                        emailService.sendLeadAssignedEmail(
+                            user.email!,
+                            user.user_metadata?.full_name || 'Admin',
+                            lead.first_name + ' ' + lead.last_name,
+                            lead.company_name || undefined
+                        );
+                    });
+                }
             }
 
-            await updateLead(leadId, { status: 'Qualified' });
+            // 4. Update Lead with conversion info
+            await supabase
+                .from('leads')
+                .update({
+                    status: 'Qualified',
+                    converted_at: new Date().toISOString(),
+                    converted_to_account_id: accountId,
+                    converted_to_contact_id: contactId,
+                    converted_to_opportunity_id: opportunityId
+                })
+                .eq('id', leadId);
+
+            // 5. Log Activity
+            await supabase.from('audit_logs').insert([{
+                user_id: user?.id,
+                action: 'CONVERT',
+                entity_type: 'LEAD',
+                entity_id: leadId,
+                details: `Converted lead to Account (${accountId}), Contact (${contactId}), and Opportunity (${opportunityId})`
+            }]);
+
             toast.success("Lead converted successfully!");
             return true;
         } catch (error: any) {

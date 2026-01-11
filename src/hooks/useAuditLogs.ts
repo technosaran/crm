@@ -18,7 +18,7 @@ export interface AuditLog {
     created_at: string;
 }
 
-export function useAuditLogs() {
+export function useAuditLogs(entityType?: string, entityId?: string) {
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
@@ -26,20 +26,33 @@ export function useAuditLogs() {
     const fetchLogs = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('audit_logs')
                 .select(`
                     *,
-                    user_profiles (
+                    user_profiles:user_id (
                         full_name,
                         email
                     )
-                `)
+                `);
+
+            if (entityType && entityId) {
+                query = query.eq('entity_type', entityType).eq('entity_id', entityId);
+            }
+
+            const { data, error } = await query
                 .order('created_at', { ascending: false })
                 .limit(50);
 
             if (error) throw error;
-            setLogs(data || []);
+
+            // Map the data to include user_profile for UI consistency
+            const mappedData = (data || []).map(log => ({
+                ...log,
+                user_profile: log.user_profiles
+            }));
+
+            setLogs(mappedData);
         } catch (error: any) {
             console.error('Error fetching audit logs:', error);
         } finally {

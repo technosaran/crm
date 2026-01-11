@@ -11,27 +11,47 @@ export function useDashboardData() {
             setLoading(true);
 
             // Fetch stats in parallel
+            const now = new Date();
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(now.getMonth() - 5);
+
             const [
                 { data: leads },
                 { data: opportunities },
                 { data: tasks },
-                { data: activities }
+                { data: auditLogs }
             ] = await Promise.all([
                 supabase.from('leads').select('id, status, created_at'),
-                supabase.from('opportunities').select('id, amount, stage, created_at'),
+                supabase.from('opportunities').select(`
+                    id, 
+                    amount, 
+                    stage, 
+                    created_at, 
+                    owner:user_profiles (
+                        full_name,
+                        avatar_url
+                    )
+                `),
                 supabase.from('tasks').select('id, status, priority, due_date'),
-                supabase.from('activities').select('*').order('occurred_at', { ascending: false }).limit(10)
+                supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(10)
             ]);
 
-            // Process Revenue / Sales Data
-            const revenueByMonth = [
-                { name: 'Jan', revenue: 4500 },
-                { name: 'Feb', revenue: 5200 },
-                { name: 'Mar', revenue: 4800 },
-                { name: 'Apr', revenue: 6100 },
-                { name: 'May', revenue: 5900 },
-                { name: 'Jun', revenue: 7200 },
-            ];
+            // Process Leaderboard
+            const leaderboardMap = new Map();
+            opportunities?.forEach(opp => {
+                const owner = Array.isArray(opp.owner) ? opp.owner[0] : opp.owner;
+                if (opp.stage === 'CLOSED_WON' && owner) {
+                    const ownerName = owner.full_name || 'Unknown User';
+                    const current = leaderboardMap.get(ownerName) || { revenue: 0, deals: 0, name: ownerName };
+                    current.revenue += (opp.amount || 0);
+                    current.deals += 1;
+                    leaderboardMap.set(ownerName, current);
+                }
+            });
+            const topPerformers = Array.from(leaderboardMap.values())
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 5)
+                .map((p, i) => ({ ...p, id: i + 1, growth: '+5%' })); // Growth still mock for now
 
             // Process Funnel Data
             const funnelData = [
@@ -49,13 +69,42 @@ export function useDashboardData() {
                 overdue: tasks?.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'COMPLETED').length || 0,
             };
 
+            // Process Revenue / Sales Data
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const revenueByMonthMap = new Map();
+
+            // Initialize last 6 months
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                revenueByMonthMap.set(months[d.getMonth()], 0);
+            }
+
+            opportunities?.forEach(opp => {
+                if (opp.stage === 'CLOSED_WON' && opp.created_at) {
+                    const date = new Date(opp.created_at);
+                    const monthName = months[date.getMonth()];
+                    if (revenueByMonthMap.has(monthName)) {
+                        revenueByMonthMap.set(monthName, (revenueByMonthMap.get(monthName) || 0) + (opp.amount || 0));
+                    }
+                }
+            });
+
+            const revenueByMonth = Array.from(revenueByMonthMap.entries()).map(([name, revenue]) => ({
+                name,
+                revenue
+            }));
+
             setData({
+                topPerformers,
                 revenueByMonth,
                 funnelData,
                 taskMetrics,
-                recentActivities: activities || [],
-                totalRevenue: opportunities?.reduce((sum, o) => sum + (o.amount || 0), 0) || 0,
-                winRate: (opportunities?.filter(o => o.stage === 'CLOSED_WON').length || 0) / (opportunities?.length || 1) * 100,
+                recentActivities: auditLogs || [],
+                totalRevenue: opportunities?.filter(o => o.stage === 'CLOSED_WON').reduce((sum, o) => sum + (o.amount || 0), 0) || 0,
+                winRate: opportunities?.length
+                    ? (opportunities.filter(o => o.stage === 'CLOSED_WON').length / opportunities.length) * 100
+                    : 0,
             });
 
         } catch (error) {

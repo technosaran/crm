@@ -29,7 +29,7 @@ export function useTasks() {
         try {
             setLoading(true);
             const { data: { user } } = await supabase.auth.getUser();
-            
+
             const { data, error } = await supabase
                 .from('tasks')
                 .select('*')
@@ -48,7 +48,7 @@ export function useTasks() {
     const createTask = async (task: Partial<Task>) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            
+
             const { data, error } = await supabase
                 .from('tasks')
                 .insert([{
@@ -114,9 +114,32 @@ export function useTasks() {
         });
     };
 
+    const getTaskById = async (id: string | number) => {
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('tasks')
+                .select(`
+                    *,
+                    assigned_to:user_profiles!assigned_to_id(full_name),
+                    owner:user_profiles!owner_id(full_name)
+                `)
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error: any) {
+            console.error('Error fetching task:', error);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchTasks();
     }, []);
 
-    return { tasks, loading, createTask, updateTask, deleteTasks, completeTask, refresh: fetchTasks };
+    return { tasks, loading, createTask, updateTask, deleteTasks, completeTask, getTaskById, refresh: fetchTasks };
 }

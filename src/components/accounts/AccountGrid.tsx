@@ -17,6 +17,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Account } from '@/hooks/useAccounts';
 
+import Link from 'next/link';
+
 interface AccountGridProps {
     accounts: Account[];
     loading: boolean;
@@ -158,7 +160,7 @@ export function AccountGrid({
                                             <div className="h-8 w-8 rounded bg-[#7F8DE1]/10 flex items-center justify-center text-[#7F8DE1] font-bold text-[10px]">
                                                 {account.name.substring(0, 2).toUpperCase()}
                                             </div>
-                                            <span className="font-bold text-sf-blue hover:underline">{account.name}</span>
+                                            <Link href={`/accounts/${account.id}`} className="font-bold text-sf-blue hover:underline">{account.name}</Link>
                                         </div>
                                     </td>
                                     <td className="p-3">
@@ -233,9 +235,9 @@ export function AccountGrid({
                                 {account.name.substring(0, 2).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                                <h3 className="text-[15px] font-bold text-slate-800 truncate group-hover:text-sf-blue transition-colors">
+                                <Link href={`/accounts/${account.id}`} className="text-[15px] font-bold text-slate-800 truncate group-hover:text-sf-blue transition-colors block">
                                     {account.name}
-                                </h3>
+                                </Link>
                                 <span className={cn('inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border mt-1', typeColors[account.type])}>
                                     {account.type}
                                 </span>

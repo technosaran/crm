@@ -1,16 +1,28 @@
-'use client';
-
-import React from 'react';
 import { Award, TrendingUp, User } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+import { useGlobalStore } from '@/store/useGlobalStore';
 
-export const LeaderBoard = () => {
-    // Mock data for leaderboard
-    const reps = [
-        { id: 1, name: 'Alex Thompson', revenue: 145000, deals: 24, growth: '+12%' },
-        { id: 2, name: 'Sarah Chen', revenue: 132000, deals: 18, growth: '+8%' },
-        { id: 3, name: 'Michael Ross', revenue: 98000, deals: 15, growth: '+5%' },
-        { id: 4, name: 'Elena Rodriguez', revenue: 87000, deals: 12, growth: '+15%' },
-    ];
+interface LeaderBoardProps {
+    reps: Array<{
+        id: number;
+        name: string;
+        revenue: number;
+        deals: number;
+        growth: string;
+    }>;
+}
+
+export const LeaderBoard = ({ reps }: LeaderBoardProps) => {
+    const { currency, locale } = useGlobalStore();
+
+    if (!reps || reps.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                < Award className="h-12 w-12 opacity-10 mb-2" />
+                <p className="text-sm">No sales data recorded yet</p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
@@ -37,7 +49,7 @@ export const LeaderBoard = () => {
                     </div>
 
                     <div className="text-right">
-                        <p className="text-sm font-black text-slate-900">${rep.revenue.toLocaleString()}</p>
+                        <p className="text-sm font-black text-slate-900">{formatCurrency(rep.revenue, currency, locale)}</p>
                         <div className="flex items-center justify-end gap-1 text-[10px] font-bold text-emerald-500">
                             <TrendingUp className="h-3 w-3" />
                             {rep.growth}

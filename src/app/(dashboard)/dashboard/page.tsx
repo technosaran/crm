@@ -190,7 +190,7 @@ export default function AdvancedDashboard() {
                         <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded-md">Real-time</span>
                     </div>
                     <div className="p-6 flex-1">
-                        <LeaderBoard />
+                        <LeaderBoard reps={data?.topPerformers} />
                     </div>
                     <button className="w-full p-4 text-[11px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-50 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
                         View All Sales Reps <ChevronRight size={14} />

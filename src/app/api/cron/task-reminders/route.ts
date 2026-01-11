@@ -33,7 +33,7 @@ export async function GET(request: Request) {
         status,
         assigned_to:user_profiles!assigned_to_id (
           email,
-          name
+          full_name
         )
       `)
             .neq('status', 'COMPLETED')
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
                 if (task.assigned_to?.email) {
                     return await emailService.sendTaskReminderEmail(
                         task.assigned_to.email,
-                        task.assigned_to.name || 'Valued User',
+                        task.assigned_to.full_name || 'Valued User',
                         task.subject,
                         new Date(task.due_date).toLocaleDateString()
                     );

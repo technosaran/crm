@@ -45,7 +45,7 @@ export function useCases() {
     const createCase = async (caseData: Partial<Case>) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            
+
             const { data, error } = await supabase
                 .from('cases')
                 .insert([{
@@ -110,9 +110,33 @@ export function useCases() {
         });
     };
 
+    const getCaseById = async (id: string | number) => {
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('cases')
+                .select(`
+                    *,
+                    account:accounts(name),
+                    contact:contacts(first_name, last_name),
+                    owner:user_profiles!owner_id(full_name)
+                `)
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error: any) {
+            console.error('Error fetching case:', error);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchCases();
     }, []);
 
-    return { cases, loading, createCase, updateCase, deleteCases, closeCase, refresh: fetchCases };
+    return { cases, loading, createCase, updateCase, deleteCases, closeCase, getCaseById, refresh: fetchCases };
 }

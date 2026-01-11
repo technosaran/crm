@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle2, 
-  Clock, 
+import {
+  CheckCircle2,
+  Clock,
   AlertTriangle,
   ChevronUp,
   ChevronDown,
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Task } from '@/hooks/useTasks';
+import Link from 'next/link';
 import { PriorityBadge } from '@/components/shared/PriorityBadge';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { getDaysOverdue, TaskSortField, TaskFilter } from '@/lib/taskUtils';
@@ -226,7 +227,8 @@ export function TaskList({
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        <span
+                        <Link
+                          href={`/tasks/${task.id}`}
                           className={cn(
                             'font-bold hover:underline',
                             task.status === 'COMPLETED'
@@ -235,7 +237,7 @@ export function TaskList({
                           )}
                         >
                           {task.subject}
-                        </span>
+                        </Link>
                         {daysOverdue !== null && (
                           <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
                             <AlertTriangle size={10} />

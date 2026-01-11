@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import Link from 'next/link';
 import { Modal } from '@/components/shared/Modal';
 import { useLeads, Lead } from '@/hooks/useLeads';
 import { validateName, validateEmail, validatePhone, sanitizeString } from '@/lib/validation';
@@ -30,6 +31,7 @@ import { ConvertLeadModal } from './ConvertLeadModal';
 import { BulkActionBar } from '@/components/shared/BulkActionBar';
 import { ImportWizard } from '@/components/shared/ImportWizard';
 import { ExportDialog } from '@/components/shared/ExportDialog';
+import { Confetti } from '@/components/shared/Confetti';
 
 export function LeadTable() {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -38,6 +40,7 @@ export function LeadTable() {
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [isExportOpen, setIsExportOpen] = useState(false);
     const [conversionLead, setConversionLead] = useState<Lead | null>(null);
+    const [showConfetti, setShowConfetti] = useState(false);
 
     // Use Advanced Leads Hook with Pagination
     const {
@@ -228,9 +231,9 @@ export function LeadTable() {
                                                 </td>
                                                 <td className="p-4">
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold text-slate-900 dark:text-white hover:text-indigo-600 transition-colors cursor-pointer text-sm">
+                                                        <Link href={`/leads/${lead.id}`} className="font-bold text-slate-900 dark:text-white hover:text-indigo-600 transition-colors cursor-pointer text-sm">
                                                             {lead.first_name} {lead.last_name}
-                                                        </span>
+                                                        </Link>
                                                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">ID: {lead.id.split('-')[0]}</span>
                                                     </div>
                                                 </td>
@@ -343,12 +346,20 @@ export function LeadTable() {
                 lead={conversionLead}
                 onConvert={async (options) => {
                     if (conversionLead) {
-                        await convertLead(conversionLead.id, options);
+                        const success = await convertLead(conversionLead.id, options);
+                        if (success) {
+                            setShowConfetti(true);
+                            toast.success("Big Win! Lead converted to opportunity.", {
+                                description: `Ready to close the deal for ${conversionLead.company_name}`
+                            });
+                        }
                         setConversionLead(null);
                         refresh();
                     }
                 }}
             />
+
+            <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
         </div>
     );
 }
